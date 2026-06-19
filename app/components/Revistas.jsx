@@ -198,23 +198,32 @@ function Revistas() {
             </p>
           )}
           {current && (
-            <div className="revista-carousel">
-              {activas.length > 1 && (
+            <div className="revista-coverflow" data-count={activas.length}>
+              {/* Thumbnails de las ediciones anteriores a la actual (a la izquierda). */}
+              {activas.slice(0, safeIdx).map((r) => (
                 <button
+                  key={r.id}
                   type="button"
-                  className="revista-carousel-arrow revista-carousel-arrow--prev"
-                  onClick={goPrev}
-                  aria-label="Edición anterior"
+                  className="revista-thumb"
+                  onClick={() => setCarouselIdx(activas.indexOf(r))}
+                  aria-label={`Ver Edición ${r.numero_edicion}`}
                 >
-                  ←
+                  <img
+                    src={r.portada_path}
+                    alt={`Edición ${r.numero_edicion}`}
+                    draggable={false}
+                  />
+                  <span>#{r.numero_edicion}</span>
                 </button>
-              )}
-              <div className="revista-item revista-item--3d">
+              ))}
+
+              {/* Slot central: 3D + título + botón. */}
+              <div className="revista-item revista-item--3d revista-current">
                 <Revista3D
                   key={current.id}
                   portadaPath={current.portada_path}
                 />
-                <h2 className="revista-carousel-titulo">
+                <h2 className="revista-current-titulo">
                   {current.titulo || `Edición ${current.numero_edicion}`}
                 </h2>
                 <button
@@ -230,32 +239,23 @@ function Revistas() {
                   {hasInCart(current.id) ? 'En el carrito' : 'Agregar al carrito'}
                 </button>
               </div>
-              {activas.length > 1 && (
-                <button
-                  type="button"
-                  className="revista-carousel-arrow revista-carousel-arrow--next"
-                  onClick={goNext}
-                  aria-label="Próxima edición"
-                >
-                  →
-                </button>
-              )}
-            </div>
-          )}
-          {activas.length > 1 && (
-            <div className="revista-carousel-dots" role="tablist">
-              {activas.map((r, i) => (
+
+              {/* Thumbnails de las posteriores a la actual (a la derecha). */}
+              {activas.slice(safeIdx + 1).map((r) => (
                 <button
                   key={r.id}
                   type="button"
-                  role="tab"
-                  aria-selected={i === safeIdx}
-                  aria-label={`Edición ${r.numero_edicion}`}
-                  className={`revista-carousel-dot${
-                    i === safeIdx ? ' revista-carousel-dot--active' : ''
-                  }`}
-                  onClick={() => setCarouselIdx(i)}
-                />
+                  className="revista-thumb"
+                  onClick={() => setCarouselIdx(activas.indexOf(r))}
+                  aria-label={`Ver Edición ${r.numero_edicion}`}
+                >
+                  <img
+                    src={r.portada_path}
+                    alt={`Edición ${r.numero_edicion}`}
+                    draggable={false}
+                  />
+                  <span>#{r.numero_edicion}</span>
+                </button>
               ))}
             </div>
           )}

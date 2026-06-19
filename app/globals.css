@@ -2422,82 +2422,76 @@ footer p {
 }
 
 /* ============================================================================
- * Carrusel de revistas en la home pública
+ * Coverflow de revistas: la actual al centro grande con 3D, las demás como
+ * thumbnails 2D clickables a los costados.
  * ============================================================================ */
-.revista-carousel {
+.revista-coverflow {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-md);
+  gap: var(--spacing-xl);
   width: 100%;
-  position: relative;
+  padding: 0 var(--spacing-lg);
 }
-.revista-carousel .revista-item {
+.revista-current {
   flex: 0 1 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--spacing-md);
 }
-.revista-carousel-titulo {
+.revista-current-titulo {
   color: var(--color-light);
   font: var(--font-size-lg) var(--font-family);
   margin: var(--spacing-sm) 0 0;
   text-align: center;
 }
-.revista-carousel-arrow {
-  background: transparent;
-  border: 2px solid rgba(255, 255, 255, 0.4);
-  color: var(--color-light);
-  width: 48px;
-  height: 48px;
-  border-radius: var(--radius-full);
-  cursor: pointer;
-  font-size: var(--font-size-lg);
+.revista-thumb {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: all 0.2s ease;
-}
-.revista-carousel-arrow:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: var(--color-light);
-}
-.revista-carousel-arrow:active {
-  transform: scale(0.92);
-}
-.revista-carousel-dots {
-  display: flex;
-  justify-content: center;
-  gap: var(--spacing-sm);
-  margin-top: var(--spacing-lg);
-}
-.revista-carousel-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: var(--radius-full);
-  background: rgba(255, 255, 255, 0.35);
+  gap: var(--spacing-xs);
+  background: transparent;
   border: none;
   padding: 0;
   cursor: pointer;
-  transition: background 0.2s ease, transform 0.2s ease;
+  opacity: 0.75;
+  transition: opacity 0.25s ease, transform 0.25s ease;
 }
-.revista-carousel-dot:hover {
-  background: rgba(255, 255, 255, 0.6);
+.revista-thumb:hover,
+.revista-thumb:focus-visible {
+  opacity: 1;
+  transform: translateY(-4px);
 }
-.revista-carousel-dot--active {
-  background: var(--color-light);
-  transform: scale(1.2);
+.revista-thumb img {
+  width: 110px;
+  height: 155px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+}
+.revista-thumb span {
+  color: var(--color-light);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
 }
 
-@media (max-width: 640px) {
-  .revista-carousel-arrow {
-    width: 40px;
-    height: 40px;
-    font-size: var(--font-size-base);
+@media (max-width: 700px) {
+  .revista-coverflow {
+    gap: var(--spacing-md);
+    padding: 0 var(--spacing-sm);
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
   }
-  .revista-carousel {
-    gap: var(--spacing-xs);
+  .revista-current,
+  .revista-thumb {
+    scroll-snap-align: center;
+    flex-shrink: 0;
+  }
+  .revista-thumb img {
+    width: 80px;
+    height: 113px;
   }
 }
