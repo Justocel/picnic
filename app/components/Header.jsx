@@ -22,6 +22,10 @@ function Header() {
   const [activeSection, setActiveSection] = useState('');
   const [isScrolled, setIsScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  // Set de ids de sección que existen actualmente en el DOM. Empieza como
+  // null para no filtrar nada en SSR (evita mismatch). Después del primer
+  // efecto se popula con lo que esté montado.
+  const [availableIds, setAvailableIds] = useState(null);
 
   useEffect(() => {
     const ids = navLinks
@@ -44,6 +48,40 @@ function Header() {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Detectar qué secciones existen realmente en el DOM, así filtramos del
+  // nav los links que apuntan a anchors inexistentes (ej. "Eventos próximos"
+  // cuando no hay eventos cargados, "Artículos" si están vacíos, etc).
+  // Chequeamos varias veces porque los providers cargan data async y las
+  // secciones se montan/desmontan después del primer paint.
+  useEffect(() => {
+    const ids = navLinks
+      .map((l) => l.href.split('#')[1])
+      .filter(Boolean);
+    const update = () => {
+      const present = new Set(ids.filter((id) => document.getElementById(id)));
+      setAvailableIds((prev) => {
+        if (prev && prev.size === present.size) {
+          let same = true;
+          for (const id of present) if (!prev.has(id)) { same = false; break; }
+          if (same) return prev;
+        }
+        return present;
+      });
+    };
+    update();
+    const timers = [50, 250, 800, 2000].map((ms) => setTimeout(update, ms));
+    return () => timers.forEach(clearTimeout);
+  }, []);
+
+  // Si no terminamos de evaluar (SSR / pre-mount), mostramos todos los
+  // links. Si ya sabemos, filtramos los que tengan anchor en el DOM.
+  const visibleNavLinks = availableIds
+    ? navLinks.filter((l) => {
+        const id = l.href.split('#')[1];
+        return !id || availableIds.has(id);
+      })
+    : navLinks;
 
   // Cerrar drawer con ESC.
   useEffect(() => {
@@ -83,7 +121,7 @@ function Header() {
         </button>
 
         <div className="subheader-links">
-          {navLinks.map((link, index) => {
+          {visibleNavLinks.map((link, index) => {
             const id = link.href.split('#')[1];
             const isActive = id === activeSection;
             return (
@@ -184,7 +222,7 @@ function Header() {
           </button>
         </div>
         <nav className="mobile-drawer-nav" aria-label="Navegación móvil">
-          {navLinks.map((link) => (
+          {visibleNavLinks.map((link) => (
             <Link key={link.href} href={link.href} onClick={handleLinkClick}>
               {link.label}
             </Link>
