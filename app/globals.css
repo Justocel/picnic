@@ -2422,82 +2422,218 @@ footer p {
 }
 
 /* ============================================================================
- * Carrusel de revistas en la home pública
+ * Estante 3D — todos los libros en una sola Canvas. Hover destaca, click
+ * selecciona (centra el libro, dim del fondo, panel con info y comprar).
+ * El alto del wrapper está reservado siempre para evitar layout shift entre
+ * estados.
  * ============================================================================ */
-.revista-carousel {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-md);
-  width: 100%;
+.seccion-revistas-public {
   position: relative;
+  z-index: 1;
 }
-.revista-carousel .revista-item {
-  flex: 0 1 auto;
+
+.revistas-shelf-wrapper {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 clamp(1rem, 4vw, 3rem);
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-md);
+  /* Alto reservado: canvas + espacio para la info (que aparece solo cuando
+     hay seleccionada). Así no hay layout shift al seleccionar/deseleccionar. */
+  min-height: calc(min(60vh, 32rem) + 12rem);
 }
-.revista-carousel-titulo {
-  color: var(--color-light);
-  font: var(--font-size-lg) var(--font-family);
-  margin: var(--spacing-sm) 0 0;
-  text-align: center;
-}
-.revista-carousel-arrow {
-  background: transparent;
-  border: 2px solid rgba(255, 255, 255, 0.4);
-  color: var(--color-light);
-  width: 48px;
-  height: 48px;
-  border-radius: var(--radius-full);
+
+.revistas-shelf-canvas {
+  width: 100%;
+  height: min(60vh, 32rem);
+  min-height: 380px;
+  /* El canvas siempre es interactivo (hover → click → drag). El cursor
+     pointer sobre todo el canvas refuerza el affordance "clickeable". */
   cursor: pointer;
-  font-size: var(--font-size-lg);
+  touch-action: none;
+  background: transparent;
+  position: relative;
+  z-index: 70;
+}
+.revistas-shelf-canvas:active {
+  cursor: grabbing;
+}
+
+/* Wrapper-level visual platform under the shelf */
+.revistas-shelf-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(90%, 50rem);
+  height: 55%;
+  pointer-events: none;
+  z-index: 65;
+  background:
+    radial-gradient(
+      ellipse 60% 70% at 50% 45%,
+      rgba(255, 255, 255, 0.10) 0%,
+      rgba(255, 255, 255, 0.04) 35%,
+      transparent 70%
+    );
+  filter: blur(10px);
+}
+
+.revistas-shelf-fallback {
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  transition: all 0.2s ease;
 }
-.revista-carousel-arrow:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: var(--color-light);
-}
-.revista-carousel-arrow:active {
-  transform: scale(0.92);
-}
-.revista-carousel-dots {
-  display: flex;
-  justify-content: center;
-  gap: var(--spacing-sm);
-  margin-top: var(--spacing-lg);
-}
-.revista-carousel-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: var(--radius-full);
-  background: rgba(255, 255, 255, 0.35);
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  transition: background 0.2s ease, transform 0.2s ease;
-}
-.revista-carousel-dot:hover {
-  background: rgba(255, 255, 255, 0.6);
-}
-.revista-carousel-dot--active {
-  background: var(--color-light);
-  transform: scale(1.2);
+.revistas-shelf-fallback::after {
+  content: 'Cargando revistas…';
+  color: var(--color-light);
+  opacity: 0.6;
+  font-style: italic;
 }
 
-@media (max-width: 640px) {
-  .revista-carousel-arrow {
-    width: 40px;
-    height: 40px;
-    font-size: var(--font-size-base);
+/* Botón cerrar prominente cuando hay revista seleccionada. */
+.revistas-close-btn {
+  position: fixed;
+  top: 1.25rem;
+  right: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--color-primary);
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: var(--font-family);
+  font-weight: 700;
+  font-size: 1rem;
+  z-index: 80;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  animation: revistas-dim-in 240ms ease-out;
+  transition: transform 180ms ease, background 180ms ease;
+}
+.revistas-close-btn:hover {
+  background: var(--color-light);
+  transform: scale(1.05);
+}
+.revistas-close-btn-label {
+  font-size: 0.95rem;
+}
+@media (max-width: 700px) {
+  .revistas-close-btn-label {
+    display: none;
   }
-  .revista-carousel {
-    gap: var(--spacing-xs);
+  .revistas-close-btn {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    justify-content: center;
+  }
+}
+
+/* Dim overlay del resto de la página cuando hay una revista seleccionada.
+   El canvas y el panel info quedan sobre él (z-index mayor). */
+.revistas-dim-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 50;
+  cursor: pointer;
+  animation: revistas-dim-in 240ms ease-out;
+}
+@keyframes revistas-dim-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Panel de info: ocupa espacio reservado, oculto por opacity cuando no hay
+   selección. NO usa display:none para no cambiar el flow del documento. */
+.revistas-shelf-info {
+  position: absolute;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(32rem, 90%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7rem;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 280ms ease;
+  z-index: 75;
+}
+.revistas-shelf-info--visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.revistas-shelf-titulo {
+  color: var(--color-light);
+  font-family: var(--font-family);
+  font-size: clamp(1.2rem, 2.5vw, 1.75rem);
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.revistas-shelf-desc {
+  color: var(--color-light);
+  opacity: 0.8;
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+  margin: 0;
+  max-width: 28rem;
+}
+
+.revistas-shelf-wrapper .revista-add-btn--3d {
+  position: static;
+  transform: none;
+  opacity: 1;
+  background-color: var(--color-light);
+  color: var(--color-primary);
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-weight: 700;
+  font-size: var(--font-size-base);
+  transition: background-color 180ms ease, transform 180ms ease;
+  margin-top: 0.4rem;
+}
+.revistas-shelf-wrapper .revista-add-btn--3d:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.88);
+  transform: translateY(-2px);
+}
+.revistas-shelf-wrapper .revista-add-btn--3d:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.revistas-shelf-empty {
+  min-height: 30vh;
+  display: grid;
+  place-items: center;
+  color: var(--color-light);
+  font-size: var(--font-size-lg);
+  opacity: 0.85;
+}
+
+@media (max-width: 700px) {
+  .revistas-shelf-canvas {
+    height: min(55vh, 26rem);
+    min-height: 320px;
+  }
+  .revistas-shelf-wrapper {
+    min-height: calc(min(55vh, 26rem) + 14rem);
+  }
+  .revistas-shelf-wrapper::before {
+    width: 95%;
   }
 }
