@@ -62,13 +62,33 @@ function RegisterForm() {
       }
       router.push(next);
     } catch (err) {
+      // Loguear el error completo para que si el usuario reporta el bug,
+      // podamos pedirle el output de la consola.
+      console.error('[register] supabase signUp error:', err);
       const msg = (err?.message || '').toLowerCase();
+      const status = err?.status || err?.statusCode;
       if (msg.includes('already') || msg.includes('registered')) {
         setError('Ese email ya tiene una cuenta. Iniciá sesión.');
       } else if (msg.includes('password')) {
         setError('Esa contraseña no es válida. Probá una más larga.');
+      } else if (msg.includes('rate') || msg.includes('too many') || status === 429) {
+        setError(
+          'Demasiados intentos. Esperá unos minutos antes de volver a intentar.'
+        );
+      } else if (msg.includes('email') && msg.includes('invalid')) {
+        setError('El email tiene un formato inválido.');
+      } else if (msg.includes('database') || msg.includes('saving')) {
+        setError(
+          'Hubo un problema con el servidor. Avisanos si persiste y reintentá.'
+        );
       } else {
-        setError('No pudimos crear la cuenta. Probá de nuevo en un momento.');
+        // Fallback: mostrar el error técnico abreviado para que si el usuario
+        // reporta el caso, tengamos al menos una pista de qué falló.
+        setError(
+          err?.message
+            ? `No pudimos crear la cuenta: ${err.message}`
+            : 'No pudimos crear la cuenta. Probá de nuevo en un momento.'
+        );
       }
       setLoading(false);
     }
