@@ -12,6 +12,7 @@ import { trackEvent } from '@/lib/analytics';
 import { friendlyCartError } from '@/lib/errorMessages';
 import RevistaEditModal from './RevistaEditModal';
 import EditableText from './EditableText';
+import useMobile from '../utils/useMobile';
 
 const RevistasShelf3D = dynamic(() => import('./RevistasShelf3D'), {
   ssr: false,
@@ -46,10 +47,23 @@ function Revistas() {
   const [addError, setAddError] = useState('');
   const [hoveredId, setHoveredId] = useState(null);
   const [selectedId, setSelectedId] = useState(null);
+  const [mobileIdx, setMobileIdx] = useState(0);
   const wrapperRef = useRef(null);
+  const isMobile = useMobile();
 
   const activas = revistas.filter((r) => r.activa);
   const selected = selectedId ? activas.find((r) => r.id === selectedId) : null;
+
+  // En mobile mostramos UNA edición a la vez (más legible que apretarlas).
+  // Las flechas navegan entre ediciones. En desktop seguimos viendo todas.
+  const safeMobileIdx = Math.max(0, Math.min(mobileIdx, activas.length - 1));
+  const shelfRevistas = isMobile && activas.length > 0
+    ? [activas[safeMobileIdx]]
+    : activas;
+  const mobileGoPrev = () =>
+    setMobileIdx((i) => (i - 1 + activas.length) % activas.length);
+  const mobileGoNext = () =>
+    setMobileIdx((i) => (i + 1) % activas.length);
 
   // ESC deselecciona.
   useEffect(() => {
@@ -246,12 +260,37 @@ function Revistas() {
           )}
 
           <RevistasShelf3D
-            revistas={activas}
+            revistas={shelfRevistas}
             hoveredId={hoveredId}
             setHoveredId={setHoveredId}
             selectedId={selectedId}
             setSelectedId={setSelectedId}
           />
+
+          {/* En mobile, si hay más de una activa, flechas + contador */}
+          {isMobile && activas.length > 1 && !selected && (
+            <div className="revistas-shelf-mobile-nav">
+              <button
+                type="button"
+                onClick={mobileGoPrev}
+                aria-label="Edición anterior"
+                className="revistas-shelf-mobile-arrow"
+              >
+                ←
+              </button>
+              <span className="revistas-shelf-mobile-count">
+                {safeMobileIdx + 1} / {activas.length}
+              </span>
+              <button
+                type="button"
+                onClick={mobileGoNext}
+                aria-label="Siguiente edición"
+                className="revistas-shelf-mobile-arrow"
+              >
+                →
+              </button>
+            </div>
+          )}
 
           <div
             className={`revistas-shelf-info${selected ? ' revistas-shelf-info--visible' : ''}`}

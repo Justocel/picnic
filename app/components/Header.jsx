@@ -10,8 +10,10 @@ import CartPanel from './CartPanel';
 
 /**
  * COMPONENTE HEADER
- * Contiene el título principal, la navegación sticky y el área de usuario
- * (Iniciar sesión / Mis revistas / Salir).
+ *
+ * Desktop: nav sticky con todos los links inline.
+ * Mobile (≤ 700px): hamburger button que abre un drawer lateral con todos
+ * los links y acciones de usuario.
  */
 function Header() {
   const { user, hydrated, isEditor, logout } = useAuth();
@@ -19,6 +21,7 @@ function Header() {
   const { editMode, toggleEditMode } = useEditMode();
   const [activeSection, setActiveSection] = useState('');
   const [isScrolled, setIsScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const ids = navLinks
@@ -42,6 +45,19 @@ function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Cerrar drawer con ESC.
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKey = (e) => {
+      if (e.key === 'Escape') setMenuOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [menuOpen]);
+
+  // Cerrar drawer al navegar.
+  const handleLinkClick = () => setMenuOpen(false);
+
   return (
     <>
       <header className="cuerpo">
@@ -55,6 +71,17 @@ function Header() {
         className={`subheader${isScrolled ? ' subheader--scrolled' : ''}`}
         aria-label="Navegación interna de secciones"
       >
+        {/* Hamburger — solo aparece en mobile via CSS. */}
+        <button
+          type="button"
+          className="subheader-burger"
+          onClick={() => setMenuOpen((v) => !v)}
+          aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
+          aria-expanded={menuOpen}
+        >
+          <span aria-hidden="true">{menuOpen ? '✕' : '☰'}</span>
+        </button>
+
         <div className="subheader-links">
           {navLinks.map((link, index) => {
             const id = link.href.split('#')[1];
@@ -130,6 +157,83 @@ function Header() {
           )}
         </div>
       </nav>
+
+      {/* Mobile drawer + backdrop */}
+      {menuOpen && (
+        <div
+          className="mobile-drawer-backdrop"
+          onClick={() => setMenuOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+      <aside
+        className={`mobile-drawer${menuOpen ? ' mobile-drawer--open' : ''}`}
+        aria-hidden={!menuOpen}
+      >
+        <div className="mobile-drawer-header">
+          <span>Menú</span>
+          <button
+            type="button"
+            className="mobile-drawer-close"
+            onClick={() => setMenuOpen(false)}
+            aria-label="Cerrar menú"
+          >
+            ✕
+          </button>
+        </div>
+        <nav className="mobile-drawer-nav" aria-label="Navegación móvil">
+          {navLinks.map((link) => (
+            <Link key={link.href} href={link.href} onClick={handleLinkClick}>
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+        <div className="mobile-drawer-auth">
+          {hydrated && user ? (
+            <>
+              <Link href="/mis-revistas" onClick={handleLinkClick}>
+                Mis revistas
+              </Link>
+              <Link href="/mis-ordenes" onClick={handleLinkClick}>
+                Mis órdenes
+              </Link>
+              {isEditor && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      toggleEditMode();
+                      setMenuOpen(false);
+                    }}
+                  >
+                    {editMode ? 'Salir de edición' : 'Activar edición'}
+                  </button>
+                  <Link href="/admin/analytics" onClick={handleLinkClick}>
+                    Analytics
+                  </Link>
+                  <Link href="/admin/editores" onClick={handleLinkClick}>
+                    Invitar editores
+                  </Link>
+                </>
+              )}
+              <button
+                type="button"
+                onClick={() => {
+                  logout();
+                  setMenuOpen(false);
+                }}
+              >
+                Salir
+              </button>
+            </>
+          ) : (
+            <Link href="/login" onClick={handleLinkClick}>
+              Iniciar sesión
+            </Link>
+          )}
+        </div>
+      </aside>
+
       <CartPanel />
     </>
   );

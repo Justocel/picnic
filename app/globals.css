@@ -3046,3 +3046,221 @@ footer p {
     margin-top: 4px;
   }
 }
+
+/* ============================================================================
+ * Mobile menu (drawer lateral). Hamburger en el subheader, drawer fuera del
+ * canvas que entra desde la izquierda con backdrop.
+ * ============================================================================ */
+.subheader-burger {
+  display: none;
+  background: transparent;
+  border: none;
+  color: var(--color-light);
+  font-size: 1.4em;
+  padding: 6px 10px;
+  cursor: pointer;
+  margin-right: var(--spacing-sm);
+}
+
+.mobile-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 90;
+  animation: drawer-fade-in 200ms ease-out;
+}
+@keyframes drawer-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.mobile-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: min(86%, 320px);
+  height: 100dvh;
+  background: var(--color-secondary);
+  color: var(--color-light);
+  z-index: 100;
+  transform: translateX(-100%);
+  transition: transform 240ms cubic-bezier(0.2, 0.6, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.45);
+}
+.mobile-drawer--open {
+  transform: translateX(0);
+}
+
+.mobile-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-lg);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  font-weight: 700;
+  font-size: 1.1em;
+}
+.mobile-drawer-close {
+  background: transparent;
+  border: none;
+  color: var(--color-light);
+  font-size: 1.4em;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.mobile-drawer-nav,
+.mobile-drawer-auth {
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing-md);
+  gap: 2px;
+}
+.mobile-drawer-auth {
+  margin-top: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+.mobile-drawer-nav a,
+.mobile-drawer-auth a,
+.mobile-drawer-auth button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  color: var(--color-light);
+  font-family: var(--font-family);
+  font-size: 1.05em;
+  padding: var(--spacing-md) var(--spacing-md);
+  text-decoration: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+.mobile-drawer-nav a:hover,
+.mobile-drawer-nav a:focus-visible,
+.mobile-drawer-auth a:hover,
+.mobile-drawer-auth button:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* En mobile: ocultar los links horizontales del subheader, mostrar
+   hamburger, y mantener el cart + login visible. */
+@media (max-width: 700px) {
+  .subheader-burger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .subheader-links {
+    display: none;
+  }
+  .subheader {
+    justify-content: space-between;
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+  .subheader-auth {
+    gap: var(--spacing-sm);
+    flex-wrap: nowrap;
+  }
+  .subheader-auth > a,
+  .subheader-auth > button {
+    font-size: 0.95em;
+    padding: 6px 10px;
+  }
+  /* Esconder Mis revistas / Salir en el bar — están en el drawer. */
+  .subheader-auth .subheader-user,
+  .subheader-auth .subheader-logout,
+  .subheader-auth .subheader-edit {
+    display: none;
+  }
+}
+
+@media (min-width: 701px) {
+  .mobile-drawer,
+  .mobile-drawer-backdrop {
+    display: none;
+  }
+}
+
+/* ============================================================================
+ * Mobile: navegación de revistas + bottom sheet del panel de selección
+ * ============================================================================ */
+.revistas-shelf-mobile-nav {
+  display: none;
+}
+
+@media (max-width: 700px) {
+  .revistas-shelf-mobile-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-lg);
+    margin-top: var(--spacing-md);
+    z-index: 75;
+    position: relative;
+  }
+  .revistas-shelf-mobile-arrow {
+    background: rgba(255, 255, 255, 0.92);
+    color: var(--color-primary);
+    border: none;
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    font-size: 1.3em;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 160ms ease;
+  }
+  .revistas-shelf-mobile-arrow:active {
+    transform: scale(0.93);
+  }
+  .revistas-shelf-mobile-count {
+    color: var(--color-light);
+    font-weight: 600;
+    min-width: 64px;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Cuando hay una seleccionada, el panel pasa a bottom-sheet fixed para que
+     no quede cortado debajo del libro 3D. */
+  .revistas-shelf-info.revistas-shelf-info--visible {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    transform: none;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    background: var(--color-secondary);
+    box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.5);
+    border-radius: 16px 16px 0 0;
+    padding: var(--spacing-lg) var(--spacing-md) calc(var(--spacing-lg) + env(safe-area-inset-bottom, 0));
+    animation: bottom-sheet-in 280ms cubic-bezier(0.2, 0.6, 0.2, 1);
+  }
+  @keyframes bottom-sheet-in {
+    from { transform: translateY(100%); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
+  }
+
+  /* Reducir altura del canvas en mobile cuando hay selección para que se
+     vea el libro entero + el panel. */
+  .revistas-shelf-wrapper:has(.revistas-shelf-info--visible) .revistas-shelf-canvas {
+    height: min(45vh, 22rem);
+    min-height: 280px;
+  }
+
+  /* Botón cerrar fijo top-right también en mobile */
+  .revistas-close-btn {
+    top: env(safe-area-inset-top, 1rem);
+    right: 0.75rem;
+  }
+}
