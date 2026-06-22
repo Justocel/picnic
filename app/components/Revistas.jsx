@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { secciones } from '../data/data';
@@ -45,6 +45,7 @@ function Revistas() {
   const [addError, setAddError] = useState('');
   const [hoveredId, setHoveredId] = useState(null);
   const [selectedId, setSelectedId] = useState(null);
+  const wrapperRef = useRef(null);
 
   const activas = revistas.filter((r) => r.activa);
   const selected = selectedId ? activas.find((r) => r.id === selectedId) : null;
@@ -67,14 +68,22 @@ function Revistas() {
     }
   }, [activas, selectedId]);
 
-  // Mientras hay una revista seleccionada, bloqueamos el scroll del body
-  // para que el usuario no scrollee fuera del modo "foco" (con el dim activo).
+  // Mientras hay una revista seleccionada: 1) scroll suave para centrar el
+  // shelf en el viewport (sino el libro elegido podría quedar cortado fuera
+  // de pantalla), 2) bloqueamos el scroll del body.
   useEffect(() => {
     if (!selectedId) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    if (wrapperRef.current) {
+      wrapperRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    // Esperamos un tick para que el scroll smooth arranque antes de bloquear,
+    // sino el lock previene la animación.
+    const lockTimer = setTimeout(() => {
+      document.body.style.overflow = 'hidden';
+    }, 50);
     return () => {
-      document.body.style.overflow = prev;
+      clearTimeout(lockTimer);
+      document.body.style.overflow = '';
     };
   }, [selectedId]);
 
@@ -207,7 +216,7 @@ function Revistas() {
           <p>No hay revistas disponibles todavía.</p>
         </div>
       ) : (
-        <div className="revistas-shelf-wrapper">
+        <div className="revistas-shelf-wrapper" ref={wrapperRef}>
           {/* Dim overlay del fondo cuando hay selected. Click sobre él deselecciona. */}
           {selected && (
             <div

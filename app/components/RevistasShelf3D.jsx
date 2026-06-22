@@ -324,11 +324,11 @@ export default function RevistasShelf3D({
         </Suspense>
 
         <ContactShadows
-          position={[0, -0.155, 0]}
+          position={[0, -0.22, 0]}
           scale={shadowScale}
-          blur={2.4}
-          far={0.5}
-          opacity={0.55}
+          blur={4.2}
+          far={0.8}
+          opacity={0.35}
           resolution={512}
           color="#000000"
           frames={1}
