@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { navLinks, secciones } from '../data/data';
 import { useAuth } from '../context/AuthProvider';
 import { useCart } from '../context/CartProvider';
@@ -19,6 +20,8 @@ function Header() {
   const { user, hydrated, isEditor, logout } = useAuth();
   const { totalItems, showCart, setShowCart } = useCart();
   const { editMode, toggleEditMode } = useEditMode();
+  const pathname = usePathname();
+  const isHome = pathname === '/';
   const [activeSection, setActiveSection] = useState('');
   const [isScrolled, setIsScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -54,7 +57,13 @@ function Header() {
   // cuando no hay eventos cargados, "Artículos" si están vacíos, etc).
   // Chequeamos varias veces porque los providers cargan data async y las
   // secciones se montan/desmontan después del primer paint.
+  // SOLO aplicamos esta lógica en la home: en otras páginas (/mis-ordenes,
+  // /leer, /admin, etc) ninguno de esos anchors existe y se filtraría todo.
   useEffect(() => {
+    if (!isHome) {
+      setAvailableIds(null);
+      return;
+    }
     const ids = navLinks
       .map((l) => l.href.split('#')[1])
       .filter(Boolean);
@@ -72,11 +81,12 @@ function Header() {
     update();
     const timers = [50, 250, 800, 2000].map((ms) => setTimeout(update, ms));
     return () => timers.forEach(clearTimeout);
-  }, []);
+  }, [isHome]);
 
-  // Si no terminamos de evaluar (SSR / pre-mount), mostramos todos los
-  // links. Si ya sabemos, filtramos los que tengan anchor en el DOM.
-  const visibleNavLinks = availableIds
+  // En la home filtramos por anchors presentes (oculta secciones vacías).
+  // Fuera de la home mostramos todos: los links apuntan a /#seccion y
+  // navegan a la home antes de scrollear.
+  const visibleNavLinks = isHome && availableIds
     ? navLinks.filter((l) => {
         const id = l.href.split('#')[1];
         return !id || availableIds.has(id);
