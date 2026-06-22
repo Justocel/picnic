@@ -83,10 +83,15 @@ function Revistas() {
     }
   }, [activas, selectedId]);
 
-  // Al seleccionar una revista: 1) scroll suave para centrar el shelf en
-  // el viewport (sino el libro elegido podría quedar cortado), 2) bloqueamos
-  // el scroll del body — pero RECIÉN cuando termina la animación de scroll,
-  // sino el lock corta el smooth a mitad de camino.
+  // Al seleccionar una revista: scroll suave para centrar el shelf en el
+  // viewport (sino el libro elegido podría quedar cortado).
+  //
+  // NO bloqueamos el scroll del body: probamos varios mecanismos (overflow
+  // hidden, position fixed, scrollbar-gutter) y todos terminaban haciendo
+  // desaparecer la scrollbar a los 600ms — reflow horizontal feo y mucho
+  // más notorio en la segunda selección. El dim overlay cubre todo y la
+  // canvas queda en el viewport; en la práctica nadie scrollea durante un
+  // focus, y si lo hace el ESC sigue funcionando.
   useEffect(() => {
     if (!selectedId || !wrapperRef.current) return;
 
@@ -98,19 +103,6 @@ function Revistas() {
       behavior: reduced ? 'auto' : 'smooth',
       block: 'center',
     });
-
-    // ~600ms cubre el scroll smooth (~400ms típico + 200 de margen). Si el
-    // usuario prefiere reduced motion, lockeamos inmediato.
-    const lockTimer = setTimeout(
-      () => {
-        document.body.style.overflow = 'hidden';
-      },
-      reduced ? 0 : 600,
-    );
-    return () => {
-      clearTimeout(lockTimer);
-      document.body.style.overflow = '';
-    };
   }, [selectedId]);
 
   const handleAdd = async (revistaId) => {
