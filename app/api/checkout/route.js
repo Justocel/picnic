@@ -75,9 +75,16 @@ export async function POST(request) {
   }
 
   const orderId = orderData?.order_id;
-  if (!orderId) {
-    return Response.json({ error: 'No se pudo crear la orden' }, { status: 500 });
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (typeof orderId !== 'string' || !UUID_RE.test(orderId)) {
+    console.error('[checkout] orderId inválido', { orderData });
+    return Response.json({ error: 'order_id inválido' }, { status: 500 });
   }
+  console.log('[checkout] preference base', {
+    orderId,
+    items: items.length,
+    siteUrl,
+  });
 
   // 3) Crear preferencia en MP.
   const preferenceClient = getPreferenceClient();
