@@ -3,6 +3,54 @@
 E-commerce + sitio editorial para **Picnic**, una revista de arte fino. Trabajo final para la materia Programación Web (ITBA).
 
 **Demo pública:** https://picniczine.vercel.app
+**Repo:** https://github.com/Justocel/picnic
+
+---
+
+## Para evaluadores (lectura rápida)
+
+### Recorrido público (sin login)
+1. Abrir `picniczine.vercel.app`.
+2. Scrollear: Hero con video, Welcome editorial, Artículos, Eventos próximos/pasados, "Picnic en la escena" (videos sincronizados desde YouTube por cron), **Conseguí la revista** (escena 3D interactiva con cada edición), Quiénes Somos.
+3. En el shelf 3D: **drag** sobre una revista para rotarla (vertical y horizontal), **click** la enfoca con dim del fondo + panel de compra. ESC o click afuera vuelve a la fila.
+4. Click **Artículos** → leer el artículo de muestra (markdown renderizado).
+
+### Recorrido como usuario comprador
+1. **Crear cuenta**: botón "Iniciar sesión" → "Registrate". Email + password (mínimo 8).
+2. **Confirmar email**: Supabase Auth manda un mail. Click el link.
+3. Volver al sitio, login, agregar una edición al carrito (icono 🛒).
+4. **Pagar con Mercado Pago** (modo TEST):
+   - Tarjeta `5031 7557 3453 0604`, CVV `123`, vencimiento `11/30`, titular `APRO 123456`.
+   - El webhook server-side confirma la compra; aparece en `/mis-revistas`.
+5. **Leer la revista**: en `/mis-revistas` → "Leer revista" → PDF embebido (anti-piracy básico: signed URL con TTL, sin descarga directa).
+6. Ver `/mis-ordenes`: historial agrupado con estados (`pendiente`, `pagada`, `cancelada`).
+
+### Recorrido como editor (modo edición inline)
+**Requiere link de invitación** — para no exponer un endpoint público que cualquiera podría usar para hacerse editor, el sistema usa tokens únicos. Si sos el evaluador y querés probar el modo edición, **pediré el link al autor por mail** o por el canal de la materia. Te llega un URL con `?invite=<token>` único y de un solo uso (vence en 7 días).
+
+Una vez logueado como editor:
+1. Botón **"Editar"** aparece en el header. Activalo.
+2. Inline aparecen controles en cada elemento:
+   - **Textos** (Welcome, descripciones de sección, footer): botón ✎ a la derecha → editar inline → guardar en `site_settings`.
+   - **Artículos / Integrantes / Videos / Revistas**: agregar (botón "+"), editar (botón Editar), reordenar (↑↓), ocultar/mostrar, borrar.
+   - **Revistas**: subir portada, contraportada, PDF (con signed upload).
+   - **Footer**: editar redes sociales (Instagram, YouTube, etc.) y email de contacto inline.
+3. **Dashboard de analytics**: `/admin/analytics` — pageviews, compras, opens de PDF.
+4. **Invitar más editores**: `/admin/editores` → generar tokens, copiar links, revocar accesos.
+
+### Qué demuestra este proyecto
+
+| Concepto de la materia | Dónde verlo |
+|---|---|
+| Maquetado semántico, responsive, accesible | `<section>`, `<article>`, `<nav>`, focus-visible global, `prefers-reduced-motion`, aria-labels en botones interactivos |
+| Formularios dinámicos + validación | `app/login`, `app/registrarme`: validación de email regex, password ≥8, trim, mensajes genéricos contra enum attacks |
+| Catálogo + API interna | `/api/checkout`, `/api/webhook/mp`, `/api/admin/reconfirm`, `/api/cron/sync-youtube` |
+| CRUD + persistencia + admin | Schema relacional con 8 migraciones SQL, RLS estricta, modo edición inline para editores, dashboard de analytics |
+| Pagos + webhooks | Mercado Pago Checkout Pro con webhook que acepta IPN clásico Y Webhooks v2, validación HMAC opcional, idempotencia vía stored procedure |
+| Transacciones | Stored procedure PL/pgSQL `crear_orden_completa` que crea purchases + vacía carrito atómicamente |
+| Seguridad | RLS en todas las tablas, triggers de defensa (`prevent_role_self_escalation`, `snapshot_purchase_price`), JWT del usuario en API routes (no spoofing posible), open redirect fixeado, validación HMAC del webhook |
+| Despliegue | Vercel con CI/CD automático desde main + preview deploys por PR. Cron diario en `vercel.json` |
+| Documentación | Este README + `DEMO.md` (guión de defensa) |
 
 ---
 
@@ -12,7 +60,8 @@ E-commerce + sitio editorial para **Picnic**, una revista de arte fino. Trabajo 
 - **Carrito** persistente en la base (por usuario, no en localStorage).
 - **Checkout con Mercado Pago** (Checkout Pro): el server crea la preferencia, el usuario paga en MP y un webhook confirma la compra en la base.
 - **Lector PDF embebido** con acceso restringido por compra: las URLs son firmadas y expiran en 1h; sin descarga directa.
-- **Modo edición inline** para editores: CRUD de artículos, integrantes, videos y revistas sin salir de la home.
+- **Modo edición inline** para editores: CRUD de artículos, integrantes, videos y revistas sin salir de la home. Textos del sitio editables vía `site_settings`.
+- **Sistema de invitaciones de editores** por token único (sin endpoint público de promoción).
 - **Sincronización automática de videos** desde el canal de YouTube (Vercel Cron).
 - **Analytics y dashboard** para editores: pageviews, compras, opens de PDF, login/signup.
 
@@ -69,6 +118,8 @@ supabase/migrations/          # SQL idempotente (orden numérico)
   0002_transactions_and_payment_prep.sql
   0003_mercadopago.sql
   0004_revista_contraportada_color.sql
+  0005_editor_invitations.sql
+  0006_site_settings.sql
 supabase/tests/
   rls_smoke_tests.sql         # Tests adversariales de RLS
 ```
@@ -116,6 +167,8 @@ En el SQL Editor de Supabase, **en orden y de a una por vez**:
 3. `supabase/migrations/0002_transactions_and_payment_prep.sql`
 4. `supabase/migrations/0003_mercadopago.sql`
 5. `supabase/migrations/0004_revista_contraportada_color.sql`
+6. `supabase/migrations/0005_editor_invitations.sql`
+7. `supabase/migrations/0006_site_settings.sql`
 
 Todas son idempotentes — se pueden re-ejecutar sin romper.
 
