@@ -99,20 +99,22 @@ function Header() {
           })}
         </div>
         <div className="subheader-auth" aria-label="Cuenta de usuario">
-          <button
-            type="button"
-            className="subheader-cart"
-            onClick={() => setShowCart((prev) => !prev)}
-            aria-label={`Carrito (${totalItems} ${
-              totalItems === 1 ? 'item' : 'items'
-            })`}
-            aria-expanded={showCart}
-          >
-            Carrito
-            {totalItems > 0 && (
+          {/* El botón carrito solo se muestra si hay algo dentro — sino
+              ocupa espacio sin propósito (sobre todo en mobile). */}
+          {totalItems > 0 && (
+            <button
+              type="button"
+              className="subheader-cart"
+              onClick={() => setShowCart((prev) => !prev)}
+              aria-label={`Carrito (${totalItems} ${
+                totalItems === 1 ? 'item' : 'items'
+              })`}
+              aria-expanded={showCart}
+            >
+              Carrito
               <span className="subheader-cart-badge">{totalItems}</span>
-            )}
-          </button>
+            </button>
+          )}
           {hydrated && user ? (
             <>
               {isEditor && (

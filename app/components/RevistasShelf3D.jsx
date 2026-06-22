@@ -208,9 +208,12 @@ function Book({
     const dx = e.clientX - dragState.current.startX;
     const dy = e.clientY - dragState.current.startY;
     if (Math.hypot(dx, dy) > 5) dragState.current.moved = true;
-    extraRotY.current = dx / 250;
-    // dy positivo (cursor hacia abajo) → libro inclina hacia adelante (rotation.x positivo).
-    extraRotX.current = dy / 350;
+    // En touch el dedo es menos preciso y el viewport más chico, así que
+    // bajamos el divisor para que el mismo px de movimiento genere más
+    // rotación visible. e.pointerType es 'touch' | 'mouse' | 'pen'.
+    const isTouch = e.pointerType === 'touch';
+    extraRotY.current = dx / (isTouch ? 140 : 250);
+    extraRotX.current = dy / (isTouch ? 200 : 350);
   };
 
   const handlePointerUp = (e) => {
