@@ -88,10 +88,20 @@ export function AuthProvider({ children }) {
     // El cliente no puede setear directamente el role.
     const metadata = { nombre: nombre || '' };
     if (inviteToken) metadata.invite_token = inviteToken;
+
+    // Destino después de confirmar email. Sin esto, Supabase usa el Site URL
+    // configurado en el dashboard y, si está mal seteado, el link cuelga.
+    const siteUrl =
+      process.env.NEXT_PUBLIC_SITE_URL ||
+      (typeof window !== 'undefined' ? window.location.origin : '');
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: metadata },
+      options: {
+        data: metadata,
+        emailRedirectTo: `${siteUrl}/login?confirmed=true`,
+      },
     });
     if (error) throw error;
     return data;

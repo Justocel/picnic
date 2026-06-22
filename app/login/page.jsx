@@ -18,6 +18,7 @@ function LoginForm() {
   const [error, setError] = useState('');
 
   const next = safeNextPath(searchParams.get('next'));
+  const justConfirmed = searchParams.get('confirmed') === 'true';
 
   const [loading, setLoading] = useState(false);
 
@@ -59,6 +60,11 @@ function LoginForm() {
         <p className="auth-sub">
           Ingresá con tu email para acceder a las revistas que ya compraste.
         </p>
+        {justConfirmed && (
+          <p className="auth-info">
+            Listo, tu cuenta fue confirmada. Iniciá sesión para continuar.
+          </p>
+        )}
         <form onSubmit={handleSubmit} className="auth-form">
           <label className="auth-field">
             <span>Email</span>
