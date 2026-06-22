@@ -82,13 +82,16 @@ export function AuthProvider({ children }) {
     return data;
   };
 
-  const register = async (email, password, nombre) => {
+  const register = async (email, password, nombre, inviteToken) => {
+    // El invite_token se pasa como user metadata. El trigger handle_new_user
+    // lo valida server-side y promueve el profile a 'editor' si corresponde.
+    // El cliente no puede setear directamente el role.
+    const metadata = { nombre: nombre || '' };
+    if (inviteToken) metadata.invite_token = inviteToken;
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        data: { nombre: nombre || '' },
-      },
+      options: { data: metadata },
     });
     if (error) throw error;
     return data;

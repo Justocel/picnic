@@ -2637,3 +2637,135 @@ footer p {
     width: 95%;
   }
 }
+
+/* ============================================================================
+ * Página /admin/editores
+ * ============================================================================ */
+.admin-page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: var(--spacing-2xl) var(--spacing-lg);
+  color: var(--color-light);
+  min-height: 60vh;
+}
+.admin-header {
+  margin-bottom: var(--spacing-xl);
+}
+.admin-header h1 {
+  color: var(--color-light);
+  margin: 0 0 var(--spacing-sm);
+  font: var(--font-size-2xl) var(--font-family);
+  text-align: left;
+}
+.admin-sub {
+  color: var(--color-light);
+  opacity: 0.8;
+  font-size: var(--font-size-sm);
+  margin: 0;
+}
+.admin-card {
+  background: rgba(0, 0, 0, 0.18);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+}
+.admin-card h2 {
+  color: var(--color-light);
+  margin: 0 0 var(--spacing-md);
+  font-size: var(--font-size-lg);
+  text-align: left;
+}
+
+.invite-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+.invite-item {
+  background: rgba(255, 255, 255, 0.08);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-sm);
+}
+.invite-item--usado { opacity: 0.5; }
+.invite-item--vencido { opacity: 0.5; }
+.invite-meta {
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--spacing-sm);
+}
+.invite-date { opacity: 0.7; }
+.invite-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+  align-items: center;
+}
+.invite-url {
+  flex: 1;
+  min-width: 200px;
+  padding: 6px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.25);
+  color: var(--color-light);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.9rem;
+}
+.invite-copy, .invite-revoke {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.invite-copy {
+  background: var(--color-light);
+  color: var(--color-primary);
+}
+.invite-revoke {
+  background: transparent;
+  color: var(--color-light);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+.invite-copy:hover { background: rgba(255, 255, 255, 0.85); }
+.invite-revoke:hover { background: rgba(255, 255, 255, 0.1); }
+
+/* ============================================================================
+ * Footer editable (admin inline)
+ * ============================================================================ */
+.footer-edit-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+.footer-edit-btn {
+  background: rgba(255, 255, 255, 0.12);
+  border: none;
+  color: var(--color-light);
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.footer-edit-btn:hover { background: rgba(255, 255, 255, 0.25); }
+.footer-edit-input {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: var(--color-light);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font: inherit;
+  width: 220px;
+}
+.footer-empty {
+  opacity: 0.4;
+  font-style: italic;
+}

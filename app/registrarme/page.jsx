@@ -22,19 +22,25 @@ function RegisterForm() {
   const [loading, setLoading] = useState(false);
 
   const next = safeNextPath(searchParams.get('next'));
+  // Token de invitación de editor (viene de /registrarme?invite=xxxx).
+  // El registro pasa este token a Supabase como user metadata; el trigger
+  // handle_new_user lo valida y promueve el profile a 'editor' si es válido.
+  const inviteToken = (searchParams.get('invite') || '').trim() || null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email || !password) {
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanNombre = nombre.trim();
+    if (!cleanEmail || !password) {
       setError('Completá email y contraseña');
       return;
     }
-    if (!isValidEmail(email)) {
+    if (!isValidEmail(cleanEmail)) {
       setError('El email no tiene un formato válido');
       return;
     }
-    if (password.length < 6) {
-      setError('La contraseña debe tener al menos 6 caracteres');
+    if (password.length < 8) {
+      setError('La contraseña debe tener al menos 8 caracteres');
       return;
     }
     if (password !== confirm) {
@@ -45,10 +51,9 @@ function RegisterForm() {
     setInfo('');
     setLoading(true);
     try {
-      const data = await register(email, password, nombre);
+      const data = await register(cleanEmail, password, cleanNombre, inviteToken);
       trackEvent('signup', { userId: data?.user?.id || null });
       if (!data.session) {
-        // Confirmación de email activada: el usuario tiene que clickear el link
         setInfo(
           'Te mandamos un mail para confirmar tu cuenta. Revisalo y volvé a iniciar sesión.'
         );
@@ -57,7 +62,14 @@ function RegisterForm() {
       }
       router.push(next);
     } catch (err) {
-      setError(err.message || 'No pudimos crear la cuenta');
+      const msg = (err?.message || '').toLowerCase();
+      if (msg.includes('already') || msg.includes('registered')) {
+        setError('Ese email ya tiene una cuenta. Iniciá sesión.');
+      } else if (msg.includes('password')) {
+        setError('Esa contraseña no es válida. Probá una más larga.');
+      } else {
+        setError('No pudimos crear la cuenta. Probá de nuevo en un momento.');
+      }
       setLoading(false);
     }
   };
@@ -70,6 +82,11 @@ function RegisterForm() {
           Registrate para guardar tus compras y bajar las revistas cuando
           quieras.
         </p>
+        {inviteToken && (
+          <p className="auth-info">
+            Estás creando una cuenta de editor con un link de invitación.
+          </p>
+        )}
         <form onSubmit={handleSubmit} className="auth-form">
           <label className="auth-field">
             <span>Nombre</span>
@@ -78,6 +95,7 @@ function RegisterForm() {
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
               autoComplete="name"
+              maxLength={80}
             />
           </label>
           <label className="auth-field">
@@ -87,16 +105,19 @@ function RegisterForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               autoComplete="email"
+              maxLength={254}
               required
             />
           </label>
           <label className="auth-field">
-            <span>Contraseña</span>
+            <span>Contraseña (mínimo 8 caracteres)</span>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="new-password"
+              maxLength={200}
+              minLength={8}
               required
             />
           </label>
@@ -107,6 +128,7 @@ function RegisterForm() {
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
               autoComplete="new-password"
+              maxLength={200}
               required
             />
           </label>

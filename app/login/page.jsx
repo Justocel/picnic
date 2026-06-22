@@ -23,22 +23,31 @@ function LoginForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email || !password) {
+    const cleanEmail = email.trim().toLowerCase();
+    if (!cleanEmail || !password) {
       setError('Completá email y contraseña');
       return;
     }
-    if (!isValidEmail(email)) {
+    if (!isValidEmail(cleanEmail)) {
       setError('El email no tiene un formato válido');
       return;
     }
     setError('');
     setLoading(true);
     try {
-      const data = await login(email, password);
+      const data = await login(cleanEmail, password);
       trackEvent('login', { userId: data?.user?.id || null });
       router.push(next);
     } catch (err) {
-      setError(err.message || 'No pudimos iniciar sesión');
+      // Mensaje genérico para no revelar si el email existe (enumeration attack).
+      const msg = (err?.message || '').toLowerCase();
+      if (msg.includes('invalid') || msg.includes('credentials')) {
+        setError('Email o contraseña incorrectos.');
+      } else if (msg.includes('confirm')) {
+        setError('Tenés que confirmar el email antes de entrar. Revisá tu inbox.');
+      } else {
+        setError('No pudimos iniciar sesión. Probá de nuevo en un momento.');
+      }
       setLoading(false);
     }
   };
@@ -58,6 +67,7 @@ function LoginForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               autoComplete="email"
+              maxLength={254}
               required
             />
           </label>
@@ -68,6 +78,7 @@ function LoginForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="current-password"
+              maxLength={200}
               required
             />
           </label>
