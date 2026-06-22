@@ -1,7 +1,7 @@
 'use client';
 
 import { Canvas, useFrame, useLoader } from '@react-three/fiber';
-import { ContactShadows, Environment } from '@react-three/drei';
+import { Environment } from '@react-three/drei';
 import {
   TextureLoader,
   SRGBColorSpace,
@@ -104,10 +104,10 @@ function Book({
   const target = useMemo(() => {
     if (isSelected) {
       return {
-        position: [0, 0, 0.08],
+        position: [0, 0, 0.05],
         rotationY: 0,
         rotationX: 0,
-        scale: 1.2,
+        scale: 1.12,
         opacity: 1,
       };
     }
@@ -122,10 +122,10 @@ function Book({
     }
     if (isHovered) {
       return {
-        position: [basePosition[0], basePosition[1], basePosition[2] + 0.1],
+        position: [basePosition[0], basePosition[1], basePosition[2] + 0.08],
         rotationY: 0,
         rotationX: 0,
-        scale: 1.28,
+        scale: 1.22,
         opacity: 1,
       };
     }
@@ -133,7 +133,7 @@ function Book({
       position: basePosition,
       rotationY: -0.28,
       rotationX: 0,
-      scale: 1.18,
+      scale: 1.15,
       opacity: 1,
     };
   }, [basePosition, isHovered, isSelected, isAnySelected]);
@@ -293,11 +293,6 @@ export default function RevistasShelf3D({
     return Math.max(0.85, totalWidth * 1.2);
   }, [revistas.length]);
 
-  const shadowScale = useMemo(
-    () => Math.max(1.2, revistas.length * 0.6),
-    [revistas.length]
-  );
-
   return (
     <div className="revistas-shelf-canvas">
       <Canvas
@@ -323,16 +318,10 @@ export default function RevistasShelf3D({
           />
         </Suspense>
 
-        <ContactShadows
-          position={[0, -0.22, 0]}
-          scale={shadowScale}
-          blur={4.2}
-          far={0.8}
-          opacity={0.35}
-          resolution={512}
-          color="#000000"
-          frames={1}
-        />
+        {/* Sombras quitadas: el ContactShadows dejaba una línea fea debajo y
+            chocaba con el libro al rotar. El platform CSS detrás del shelf
+            (gradient radial en .revistas-shelf-wrapper::before) ya da la
+            sensación de "superficie" sin esos artefactos. */}
       </Canvas>
     </div>
   );
