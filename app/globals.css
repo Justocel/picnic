@@ -2422,82 +2422,293 @@ footer p {
 }
 
 /* ============================================================================
- * Carrusel de revistas en la home pública
+ * Stage adaptativa de revistas — la activa al centro como 3D, las demás como
+ * thumbnails 2D clickables. Layout cambia según cantidad de ediciones (count).
+ * Sin flechas ni dots.
  * ============================================================================ */
-.revista-carousel {
-  display: flex;
+.revistas-stage {
+  --stage-gap: clamp(2rem, 4vw, 4rem);
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: clamp(1rem, 3vw, 3rem) clamp(1rem, 4vw, 3rem);
+  display: grid;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-md);
-  width: 100%;
+  gap: var(--stage-gap);
   position: relative;
 }
-.revista-carousel .revista-item {
-  flex: 0 1 auto;
+
+.revistas-stage--empty {
+  min-height: 40vh;
+  place-items: center;
+}
+
+.revistas-empty {
+  color: var(--color-light);
+  font-size: var(--font-size-lg);
+  opacity: 0.85;
+}
+
+/* Variantes por count */
+.revistas-stage[data-count="1"] {
+  grid-template-columns: minmax(0, 32rem);
+}
+.revistas-stage[data-count="2"] {
+  grid-template-columns: minmax(0, 26rem) auto;
+  --stage-gap: clamp(2rem, 6vw, 5rem);
+}
+.revistas-stage[data-count="3"] {
+  grid-template-columns: auto minmax(0, 26rem) auto;
+  --stage-gap: clamp(1.5rem, 4vw, 4rem);
+}
+.revistas-stage[data-count="4"] {
+  grid-template-columns: auto auto minmax(0, 24rem) auto;
+  --stage-gap: clamp(1.25rem, 3vw, 3rem);
+}
+.revistas-stage[data-count="5"] {
+  grid-template-columns: auto auto minmax(0, 22rem) auto auto;
+  --stage-gap: clamp(1rem, 2.5vw, 2.5rem);
+}
+.revistas-stage[data-count="6+"] {
+  grid-auto-flow: column;
+  grid-auto-columns: max-content;
+  grid-template-columns: none;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 50%;
+  padding-inline: 50%;
+  --stage-gap: 2rem;
+  scrollbar-width: none;
+}
+.revistas-stage[data-count="6+"]::-webkit-scrollbar { display: none; }
+.revistas-stage[data-count="6+"] .revista-slot { scroll-snap-align: center; }
+
+/* Slot activo (3D) */
+.revista-slot--active {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-md);
-}
-.revista-carousel-titulo {
-  color: var(--color-light);
-  font: var(--font-size-lg) var(--font-family);
-  margin: var(--spacing-sm) 0 0;
-  text-align: center;
-}
-.revista-carousel-arrow {
-  background: transparent;
-  border: 2px solid rgba(255, 255, 255, 0.4);
-  color: var(--color-light);
-  width: 48px;
-  height: 48px;
-  border-radius: var(--radius-full);
-  cursor: pointer;
-  font-size: var(--font-size-lg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: all 0.2s ease;
-}
-.revista-carousel-arrow:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: var(--color-light);
-}
-.revista-carousel-arrow:active {
-  transform: scale(0.92);
-}
-.revista-carousel-dots {
-  display: flex;
-  justify-content: center;
-  gap: var(--spacing-sm);
-  margin-top: var(--spacing-lg);
-}
-.revista-carousel-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: var(--radius-full);
-  background: rgba(255, 255, 255, 0.35);
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  transition: background 0.2s ease, transform 0.2s ease;
-}
-.revista-carousel-dot:hover {
-  background: rgba(255, 255, 255, 0.6);
-}
-.revista-carousel-dot--active {
-  background: var(--color-light);
-  transform: scale(1.2);
+  gap: 1rem;
+  width: 100%;
+  min-width: 0;
+  animation: revista-active-in 320ms ease-out;
 }
 
-@media (max-width: 640px) {
-  .revista-carousel-arrow {
-    width: 40px;
-    height: 40px;
-    font-size: var(--font-size-base);
+@keyframes revista-active-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.revista-slot--active .revista-3d-canvas {
+  width: 100%;
+  height: min(65vh, 32rem);
+  min-height: 420px;
+  border-radius: 0;
+  overflow: visible;
+  cursor: grab;
+  background: transparent;
+  touch-action: none;
+  position: relative;
+  z-index: 1;
+}
+.revistas-stage[data-count="1"] .revista-slot--active .revista-3d-canvas {
+  height: min(70vh, 36rem);
+}
+.revistas-stage[data-count="4"] .revista-slot--active .revista-3d-canvas {
+  height: min(60vh, 28rem);
+  min-height: 380px;
+}
+.revistas-stage[data-count="5"] .revista-slot--active .revista-3d-canvas {
+  height: min(58vh, 26rem);
+  min-height: 360px;
+}
+.revistas-stage[data-count="6+"] .revista-slot--active .revista-3d-canvas {
+  width: clamp(18rem, 40vw, 24rem);
+  height: min(55vh, 24rem);
+  min-height: 340px;
+}
+.revista-3d-canvas:active { cursor: grabbing; }
+
+.revista-active-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  text-align: center;
+  max-width: 32rem;
+  padding-inline: 1rem;
+  position: relative;
+  z-index: 2;
+}
+
+.revista-active-titulo {
+  color: var(--color-light);
+  font-family: var(--font-family);
+  font-size: clamp(1.2rem, 2.5vw, 1.75rem);
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.revista-active-desc {
+  color: var(--color-light);
+  opacity: 0.75;
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+  margin: 0;
+  max-width: 28rem;
+}
+
+/* Botón de compra en modo 3D: queda en el flow, no posicionado absoluto */
+.revista-slot--active .revista-add-btn--3d {
+  position: static;
+  transform: none;
+  opacity: 1;
+  background-color: var(--color-light);
+  color: var(--color-primary);
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-weight: 700;
+  font-size: var(--font-size-base);
+  transition: background-color 180ms ease, transform 180ms ease;
+  margin-top: 0.4rem;
+}
+.revista-slot--active .revista-add-btn--3d:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.88);
+  transform: translateY(-2px);
+}
+.revista-slot--active .revista-add-btn--3d:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Slot thumb (2D clickable) */
+.revista-slot--thumb {
+  display: flex;
+}
+
+.revista-thumb {
+  appearance: none;
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  color: var(--color-light);
+  font-family: inherit;
+  transition: transform 220ms ease, opacity 220ms ease, filter 220ms ease;
+  opacity: 0.7;
+  filter: saturate(0.85);
+}
+
+.revista-thumb img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 210 / 297;
+  object-fit: cover;
+  border-radius: 4px;
+  box-shadow:
+    0 12px 28px -8px rgba(0, 0, 0, 0.45),
+    0 4px 10px -4px rgba(0, 0, 0, 0.35);
+  user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: none;
+  display: block;
+}
+
+.revista-thumb-titulo {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  opacity: 0.85;
+  text-align: center;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.revista-thumb:hover,
+.revista-thumb:focus-visible {
+  opacity: 1;
+  filter: saturate(1);
+  transform: translateY(-6px);
+  outline: none;
+}
+.revista-thumb:focus-visible img {
+  box-shadow:
+    0 0 0 3px var(--color-light),
+    0 12px 28px -8px rgba(0, 0, 0, 0.5);
+}
+
+/* Tamaños de thumb por count */
+.revistas-stage[data-count="2"] .revista-thumb { width: 14rem; }
+.revistas-stage[data-count="3"] .revista-thumb { width: 13rem; }
+.revistas-stage[data-count="4"] .revista-thumb { width: 11rem; }
+.revistas-stage[data-count="5"] .revista-thumb { width: 10rem; }
+.revistas-stage[data-count="6+"] .revista-thumb { width: 9.5rem; }
+
+/* Platform: backdrop sutil bajo la activa para reducir empty-space */
+.revista-platform {
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(90%, 36rem);
+  height: 55%;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(
+      ellipse 60% 70% at 50% 45%,
+      rgba(255, 255, 255, 0.10) 0%,
+      rgba(255, 255, 255, 0.04) 35%,
+      transparent 70%
+    );
+  filter: blur(8px);
+}
+
+/* Responsive — mobile (≤700px): scroll horizontal snap independiente del count */
+@media (max-width: 700px) {
+  .revistas-stage,
+  .revistas-stage[data-count="1"],
+  .revistas-stage[data-count="2"],
+  .revistas-stage[data-count="3"],
+  .revistas-stage[data-count="4"],
+  .revistas-stage[data-count="5"],
+  .revistas-stage[data-count="6+"] {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: max-content;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 50%;
+    padding: 1.5rem 50%;
+    gap: 1.5rem;
+    scrollbar-width: none;
   }
-  .revista-carousel {
-    gap: var(--spacing-xs);
+  .revistas-stage::-webkit-scrollbar { display: none; }
+  .revistas-stage .revista-slot { scroll-snap-align: center; }
+
+  .revista-slot--active .revista-3d-canvas {
+    width: min(80vw, 22rem);
+    height: 60vh;
+    min-height: 380px;
   }
+  .revista-thumb { width: min(60vw, 16rem); }
+  .revista-active-titulo { font-size: 1.1rem; }
+  .revista-platform { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .revista-slot--active { animation: none; }
+  .revista-thumb { transition: none; }
+  .revista-thumb:hover { transform: none; }
 }

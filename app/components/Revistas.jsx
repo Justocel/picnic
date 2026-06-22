@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { secciones } from '../data/data';
@@ -20,9 +20,12 @@ const Revista3D = dynamic(() => import('./Revista3D'), {
 /**
  * COMPONENTE REVISTAS
  *
- * Public: muestra la primera edición activa con escena 3D y botón de compra.
- * Edit mode: lista todas las ediciones (activas e inactivas) con controles
- * CRUD inline. PDF se sube desde el modal de edición (necesita el UUID).
+ * Modo público: stage adaptativa al número de ediciones activas. Una sola edición
+ * es la "activa" — se renderiza en 3D al centro; las demás son thumbnails 2D
+ * clickables que la reemplazan al ser tocadas. Sin flechas, sin dots.
+ *
+ * Modo edición: lista todas las ediciones (activas e inactivas) con controles
+ * CRUD inline. El PDF se sube desde el modal de edición (necesita el UUID).
  */
 function Revistas() {
   const router = useRouter();
@@ -37,10 +40,25 @@ function Revistas() {
   } = useRevistas();
   const { addToCart, setShowCart, hasInCart } = useCart();
   const { editMode } = useEditMode();
-  const [editing, setEditing] = useState(null); // null | 'new' | <revista>
+  const [editing, setEditing] = useState(null);
   const [addError, setAddError] = useState('');
-  const [carouselIdx, setCarouselIdx] = useState(0);
-  const touchStartX = useRef(null);
+  const [activeId, setActiveId] = useState(null);
+
+  const activas = useMemo(() => revistas.filter((r) => r.activa), [revistas]);
+  // Si no hay activeId, la activa por defecto es la primera (más reciente).
+  // Si la activeId apunta a una edición que se desactivó, fallback a la 0.
+  const current = useMemo(() => {
+    if (activas.length === 0) return null;
+    if (activeId == null) return activas[0];
+    return activas.find((r) => r.id === activeId) || activas[0];
+  }, [activas, activeId]);
+  const count = activas.length;
+  const stageDataCount = count >= 6 ? '6+' : String(count);
+
+  const handleSelect = (id) => {
+    if (id === current?.id) return;
+    setActiveId(id);
+  };
 
   const handleAdd = async (revistaId) => {
     if (!user) {
@@ -67,7 +85,6 @@ function Revistas() {
 
   const handlePdfUploaded = async (revistaId, newPath) => {
     await updateRevista(revistaId, { pdf_path: newPath });
-    // Refrescá el editing state local para que el modal muestre el nuevo path
     setEditing((cur) =>
       cur && cur !== 'new' && cur.id === revistaId
         ? { ...cur, pdf_path: newPath }
@@ -90,24 +107,6 @@ function Revistas() {
           '\nTip: marcala como "inactiva" en vez de borrarla.'
       );
     }
-  };
-
-  const activas = revistas.filter((r) => r.activa);
-
-  // Carrusel: clamp del índice por si la lista cambia (ej. desactivan una edición).
-  const safeIdx = activas.length === 0 ? 0 : Math.min(carouselIdx, activas.length - 1);
-  const current = activas[safeIdx] || null;
-  const goPrev = () =>
-    setCarouselIdx((i) => (i - 1 + activas.length) % activas.length);
-  const goNext = () => setCarouselIdx((i) => (i + 1) % activas.length);
-  const onTouchStart = (e) => {
-    touchStartX.current = e.touches[0].clientX;
-  };
-  const onTouchEnd = (e) => {
-    if (touchStartX.current == null || activas.length <= 1) return;
-    const dx = e.changedTouches[0].clientX - touchStartX.current;
-    if (Math.abs(dx) > 60) (dx > 0 ? goPrev : goNext)();
-    touchStartX.current = null;
   };
 
   return (
@@ -181,85 +180,71 @@ function Revistas() {
             </article>
           ))}
         </div>
+      ) : count === 0 ? (
+        <div className="revistas-stage revistas-stage--empty">
+          <p className="revistas-empty">
+            {hydrated
+              ? 'No hay revistas disponibles todavía.'
+              : ''}
+          </p>
+        </div>
       ) : (
-        <div
-          className="revistas-container revistas-container--3d"
-          onTouchStart={onTouchStart}
-          onTouchEnd={onTouchEnd}
-        >
-          {!hydrated && (
-            <div className="revista-item revista-item--3d">
-              <Revista3D />
-            </div>
-          )}
-          {hydrated && activas.length === 0 && (
-            <p className="seccion-descripcion">
-              No hay revistas disponibles todavía.
-            </p>
-          )}
-          {current && (
-            <div className="revista-carousel">
-              {activas.length > 1 && (
-                <button
-                  type="button"
-                  className="revista-carousel-arrow revista-carousel-arrow--prev"
-                  onClick={goPrev}
-                  aria-label="Edición anterior"
-                >
-                  ←
-                </button>
-              )}
-              <div className="revista-item revista-item--3d">
-                <Revista3D
-                  key={current.id}
-                  portadaPath={current.portada_path}
-                />
-                <h2 className="revista-carousel-titulo">
-                  {current.titulo || `Edición ${current.numero_edicion}`}
-                </h2>
-                <button
-                  className="revista-add-btn revista-add-btn--3d"
-                  onClick={() => handleAdd(current.id)}
-                  disabled={hasInCart(current.id)}
-                  aria-label={
-                    hasInCart(current.id)
-                      ? 'Esta revista ya está en tu carrito'
-                      : `Agregar Edición ${current.numero_edicion} al carrito`
-                  }
-                >
-                  {hasInCart(current.id) ? 'En el carrito' : 'Agregar al carrito'}
-                </button>
+        <div className="revistas-stage" data-count={stageDataCount}>
+          {activas.map((r) => {
+            const isActive = current && r.id === current.id;
+            return (
+              <div
+                key={r.id}
+                className={`revista-slot ${isActive ? 'revista-slot--active' : 'revista-slot--thumb'}`}
+                data-id={r.id}
+              >
+                {isActive ? (
+                  <>
+                    <div className="revista-platform" aria-hidden="true" />
+                    <Revista3D portadaPath={r.portada_path} />
+                    <div className="revista-active-meta">
+                      <h2 className="revista-active-titulo">
+                        {r.titulo || `Edición #${r.numero_edicion}`}
+                      </h2>
+                      {r.descripcion && (
+                        <p className="revista-active-desc">{r.descripcion}</p>
+                      )}
+                      <button
+                        type="button"
+                        className="revista-add-btn revista-add-btn--3d"
+                        onClick={() => handleAdd(r.id)}
+                        disabled={hasInCart(r.id)}
+                      >
+                        {hasInCart(r.id)
+                          ? 'En el carrito'
+                          : `Agregar — $${r.precio}`}
+                      </button>
+                      {addError && (
+                        <p className="cart-warning">{addError}</p>
+                      )}
+                    </div>
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    className="revista-thumb"
+                    onClick={() => handleSelect(r.id)}
+                    aria-label={`Ver ${r.titulo || `edición #${r.numero_edicion}`}`}
+                  >
+                    <img
+                      src={r.portada_path || '/Revistas/7.png'}
+                      alt={r.titulo || `Edición #${r.numero_edicion}`}
+                      loading="lazy"
+                      draggable={false}
+                    />
+                    <span className="revista-thumb-titulo">
+                      {r.titulo || `#${r.numero_edicion}`}
+                    </span>
+                  </button>
+                )}
               </div>
-              {activas.length > 1 && (
-                <button
-                  type="button"
-                  className="revista-carousel-arrow revista-carousel-arrow--next"
-                  onClick={goNext}
-                  aria-label="Próxima edición"
-                >
-                  →
-                </button>
-              )}
-            </div>
-          )}
-          {activas.length > 1 && (
-            <div className="revista-carousel-dots" role="tablist">
-              {activas.map((r, i) => (
-                <button
-                  key={r.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={i === safeIdx}
-                  aria-label={`Edición ${r.numero_edicion}`}
-                  className={`revista-carousel-dot${
-                    i === safeIdx ? ' revista-carousel-dot--active' : ''
-                  }`}
-                  onClick={() => setCarouselIdx(i)}
-                />
-              ))}
-            </div>
-          )}
-          {addError && <p className="cart-warning">{addError}</p>}
+            );
+          })}
         </div>
       )}
 
