@@ -68,6 +68,10 @@
   --line-height-tight: 1.15;
   --line-height-base: 1.65;
   --line-height-loose: 1.8;
+
+  /* Micro-interacciones — easing editorial (no bouncy). */
+  --ease-editorial: cubic-bezier(0.2, 0.6, 0.2, 1);
+  --transition-editorial: 320ms var(--ease-editorial);
 }
 
 /* ===================================
@@ -2872,4 +2876,97 @@ footer p {
   border-top: 1px solid rgba(250, 250, 250, 0.22);
   border-bottom: 1px solid rgba(250, 250, 250, 0.22);
   padding: var(--spacing-lg) var(--spacing-md);
+}
+
+/* ============================================================================
+ * Micro-interacciones editoriales
+ * Underline animado en links del Footer/Welcome, hovers leves en cards.
+ * Easing común para coherencia.
+ * ============================================================================ */
+@media (hover: hover) {
+  footer a,
+  .bienvenida-content a {
+    text-decoration: none;
+    background-image: linear-gradient(currentColor, currentColor);
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    background-size: 100% 1px;
+    transition: background-size var(--transition-editorial);
+  }
+  footer a:hover,
+  .bienvenida-content a:hover {
+    background-size: 100% 2px;
+  }
+}
+
+/* ============================================================================
+ * Mobile readability (≤700px) — fine tuning de tipografía + footer stacked
+ * ============================================================================ */
+@media (max-width: 700px) {
+  .cuerpo {
+    padding: var(--spacing-xl) var(--spacing-md);
+  }
+  .cuerpo h2 {
+    font-size: 2.2em;
+  }
+  .cuerpo h1 {
+    font-size: 1.1em;
+    letter-spacing: 0.06em;
+  }
+
+  .seccion-bienvenida {
+    padding: var(--spacing-2xl) var(--spacing-md);
+  }
+  .bienvenida-content {
+    padding: 0 var(--spacing-xs);
+  }
+  .bienvenida-content p {
+    font-size: 1.05em;
+    line-height: 1.6;
+  }
+  .bienvenida-pull-quote {
+    font-size: 1.5em;
+    line-height: 1.25;
+    max-width: none;
+    margin: var(--spacing-xl) auto;
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+
+  .seccion-placeholder {
+    padding: var(--spacing-2xl) var(--spacing-md) var(--spacing-xl);
+  }
+  .seccion-placeholder h1 {
+    font-size: 1.6em;
+  }
+
+  .articulo-titulo {
+    font-size: 1.8em;
+  }
+  .articulo-detalle-cuerpo {
+    font-size: 1.05em;
+    line-height: 1.7;
+    padding: 0 var(--spacing-md);
+  }
+  .articulo-detalle-cuerpo::first-letter {
+    font-size: 2.6em;
+  }
+
+  .hero-titulo {
+    font-size: clamp(1.5em, 8vw, 2.2em);
+    padding: 0 var(--spacing-md);
+  }
+
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-xl);
+  }
+  .footer-brand-name {
+    font-size: 2em;
+  }
+
+  .seccion-placeholder-vacio {
+    font-size: var(--font-size-sm);
+    margin: var(--spacing-lg) auto;
+    padding: var(--spacing-md);
+  }
 }
