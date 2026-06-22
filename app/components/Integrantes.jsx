@@ -5,6 +5,7 @@ import { secciones } from '../data/data';
 import { useIntegrantes } from '../context/IntegrantesProvider';
 import { useEditMode } from '../context/EditModeProvider';
 import IntegranteEditModal from './IntegranteEditModal';
+import EditableText from './EditableText';
 
 /**
  * COMPONENTE INTEGRANTES
@@ -44,8 +45,19 @@ function Integrantes() {
       className={`seccion-placeholder seccion-final${editMode ? ' seccion--edit' : ''}`}
     >
       <div className="seccion-header">
-        <h1>{secciones.equipo.titulo}</h1>
-        <p className="seccion-descripcion">{secciones.equipo.descripcion}</p>
+        <EditableText
+          settingKey="seccion_equipo_titulo"
+          fallback={secciones.equipo.titulo}
+          as="h1"
+          maxLength={80}
+        />
+        <EditableText
+          settingKey="seccion_equipo_descripcion"
+          fallback={secciones.equipo.descripcion}
+          as="p"
+          className="seccion-descripcion"
+          maxLength={300}
+        />
         {editMode && (
           <button
             className="edit-add-btn"

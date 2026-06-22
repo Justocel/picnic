@@ -6,6 +6,7 @@ import { secciones } from '../data/data';
 import { useArticulos } from '../context/ArticulosProvider';
 import { useEditMode } from '../context/EditModeProvider';
 import ArticuloEditModal from './ArticuloEditModal';
+import EditableText from './EditableText';
 
 function Articulos() {
   const {
@@ -45,8 +46,19 @@ function Articulos() {
       className={`seccion-placeholder${editMode ? ' seccion--edit' : ''}`}
     >
       <div className="seccion-header">
-        <h1>{secciones.articulos.titulo}</h1>
-        <p className="seccion-descripcion">{secciones.articulos.descripcion}</p>
+        <EditableText
+          settingKey="seccion_articulos_titulo"
+          fallback={secciones.articulos.titulo}
+          as="h1"
+          maxLength={80}
+        />
+        <EditableText
+          settingKey="seccion_articulos_descripcion"
+          fallback={secciones.articulos.descripcion}
+          as="p"
+          className="seccion-descripcion"
+          maxLength={300}
+        />
         {editMode && (
           <button
             className="edit-add-btn"

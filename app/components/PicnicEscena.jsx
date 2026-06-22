@@ -4,6 +4,7 @@ import VideoItem from './VideoItem';
 import { secciones } from '../data/data';
 import { useVideos } from '../context/VideosProvider';
 import { useEditMode } from '../context/EditModeProvider';
+import EditableText from './EditableText';
 
 /**
  * COMPONENTE PICNIC EN LA ESCENA
@@ -135,7 +136,12 @@ function PicnicEscena() {
       className={`seccion-placeholder${editMode ? ' seccion--edit' : ''}`}
     >
       <div className="seccion-header">
-        <h1>{secciones.picnicEscena.titulo}</h1>
+        <EditableText
+          settingKey="seccion_picnic_escena_titulo"
+          fallback={secciones.picnicEscena.titulo}
+          as="h1"
+          maxLength={80}
+        />
         {editMode && (
           <p className="seccion-descripcion">
             Los videos los sincroniza el cron desde YouTube. Asigná sección

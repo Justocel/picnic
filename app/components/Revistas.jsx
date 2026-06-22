@@ -11,6 +11,7 @@ import { useEditMode } from '../context/EditModeProvider';
 import { trackEvent } from '@/lib/analytics';
 import { friendlyCartError } from '@/lib/errorMessages';
 import RevistaEditModal from './RevistaEditModal';
+import EditableText from './EditableText';
 
 const RevistasShelf3D = dynamic(() => import('./RevistasShelf3D'), {
   ssr: false,
@@ -142,7 +143,12 @@ function Revistas() {
       className={`seccion-placeholder seccion-placeholder--alt seccion-revistas-public${editMode ? ' seccion--edit' : ''}${selected ? ' seccion-revistas-public--selected' : ''}`}
     >
       <div className="seccion-header">
-        <h1>{secciones.revistas.titulo}</h1>
+        <EditableText
+          settingKey="seccion_revistas_titulo"
+          fallback={secciones.revistas.titulo}
+          as="h1"
+          maxLength={80}
+        />
         <p className="seccion-descripcion">
           {selected
             ? ''

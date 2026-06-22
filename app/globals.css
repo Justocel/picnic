@@ -254,22 +254,7 @@ h2 {
   background-color: var(--color-primary);
 }
 
-/* ---------- Transición editorial entre secciones ----------
-   Sombra interna superior de 32px sobre cada sección. Suaviza el corte
-   entre rojo claro y granate sin necesidad de divisores explícitos.
-   No aplica a la primera sección (Hero) ni a los sections del modo edit. */
-.App > section {
-  background-image: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.14) 0,
-    rgba(0, 0, 0, 0) 32px
-  );
-  background-repeat: no-repeat;
-  background-size: 100% 32px;
-}
-.App > section:first-of-type {
-  background-image: none;
-}
+/* (Transición de sombra entre secciones removida por feedback del usuario.) */
 
 .seccion-placeholder h2 {
   margin-top: 0;
@@ -2965,4 +2950,99 @@ footer p {
 .orden-item-badge--cancelada {
   background: rgba(176, 48, 48, 0.25);
   color: #6e1a1a;
+}
+
+/* ============================================================================
+ * EditableText — texto editable inline en modo edición.
+ * En lectura no agrega ningún wrapper visible. En edit mode aparece un
+ * botón ✎ flotante a la derecha del texto. Click → input/textarea inline.
+ * ============================================================================ */
+.editable-text--readable {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+}
+.editable-text--readable > :first-child {
+  /* el contenido editado renderiza su tag tal cual */
+}
+.editable-text-edit-btn {
+  position: absolute;
+  top: 0;
+  right: -28px;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.18);
+  color: var(--color-light);
+  cursor: pointer;
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.55;
+  transition: opacity 160ms ease, background 160ms ease;
+}
+.editable-text--readable:hover .editable-text-edit-btn {
+  opacity: 1;
+}
+.editable-text-edit-btn:hover {
+  background: rgba(0, 0, 0, 0.36);
+}
+
+.editable-text--editing {
+  display: block;
+  background: rgba(0, 0, 0, 0.22);
+  border: 1px dashed rgba(255, 255, 255, 0.35);
+  border-radius: 6px;
+  padding: 12px;
+  margin: 8px 0;
+}
+.editable-text-input {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--color-light);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 4px;
+  padding: 8px 10px;
+  font: inherit;
+  font-family: var(--font-family);
+  resize: vertical;
+}
+.editable-text-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  justify-content: flex-end;
+}
+.editable-text-actions button {
+  background: var(--color-light);
+  color: var(--color-primary);
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9em;
+}
+.editable-text-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.editable-text-actions button:last-child {
+  background: transparent;
+  color: var(--color-light);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+/* En mobile el botón flotante a la derecha puede salirse del viewport.
+   Lo pasamos abajo. */
+@media (max-width: 700px) {
+  .editable-text--readable {
+    display: block;
+  }
+  .editable-text-edit-btn {
+    position: static;
+    margin-top: 4px;
+  }
 }

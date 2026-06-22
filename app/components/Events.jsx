@@ -1,5 +1,8 @@
+'use client';
+
 import { eventos, secciones } from '../data/data';
 import { classifyEvents, formatDate } from '../utils/utils';
+import EditableText from './EditableText';
 
 /**
  * COMPONENTE EVENTS
@@ -28,10 +31,19 @@ function Events() {
           className="seccion-placeholder seccion-placeholder--alt seccion-eventos"
         >
           <div className="seccion-header">
-            <h1>{secciones.eventosProximos.titulo}</h1>
-            <p className="seccion-descripcion">
-              {secciones.eventosProximos.descripcion}
-            </p>
+            <EditableText
+              settingKey="seccion_eventos_proximos_titulo"
+              fallback={secciones.eventosProximos.titulo}
+              as="h1"
+              maxLength={80}
+            />
+            <EditableText
+              settingKey="seccion_eventos_proximos_descripcion"
+              fallback={secciones.eventosProximos.descripcion}
+              as="p"
+              className="seccion-descripcion"
+              maxLength={300}
+            />
           </div>
           <div className="eventos-container eventos-container--grid">
             {futuro.map(renderEvento)}
@@ -45,10 +57,19 @@ function Events() {
           className="seccion-placeholder seccion-placeholder--alt seccion-eventos"
         >
           <div className="seccion-header">
-            <h1>{secciones.eventosPasados.titulo}</h1>
-            <p className="seccion-descripcion">
-              {secciones.eventosPasados.descripcion}
-            </p>
+            <EditableText
+              settingKey="seccion_eventos_pasados_titulo"
+              fallback={secciones.eventosPasados.titulo}
+              as="h1"
+              maxLength={80}
+            />
+            <EditableText
+              settingKey="seccion_eventos_pasados_descripcion"
+              fallback={secciones.eventosPasados.descripcion}
+              as="p"
+              className="seccion-descripcion"
+              maxLength={300}
+            />
           </div>
           <div className="eventos-container">{pasado.map(renderEvento)}</div>
         </section>

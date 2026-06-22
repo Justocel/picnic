@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { footer, navLinks } from '../data/data';
 import { useEditMode } from '../context/EditModeProvider';
 import { useSiteSettings } from '../context/SiteSettingsProvider';
+import EditableText from './EditableText';
 
 /**
  * COMPONENTE FOOTER
@@ -96,8 +97,21 @@ function Footer() {
     <footer>
       <div className="footer-grid">
         <div className="footer-brand">
-          <p className="footer-brand-name">{footer.brand}</p>
-          <p className="footer-brand-tagline">{footer.tagline}</p>
+          <EditableText
+            settingKey="footer_brand"
+            fallback={footer.brand}
+            as="p"
+            className="footer-brand-name"
+            maxLength={60}
+          />
+          <EditableText
+            settingKey="footer_tagline"
+            fallback={footer.tagline}
+            as="p"
+            className="footer-brand-tagline"
+            maxLength={200}
+            multiline
+          />
         </div>
 
         <div className="footer-col">
@@ -131,7 +145,13 @@ function Footer() {
           <ul className="footer-list">
             <li>{renderEditableLink('contact_email', settings.contact_email || 'Email', true)}</li>
             <li className="footer-list-note">
-              {footer.contacto.colaboraciones}
+              <EditableText
+                settingKey="footer_colaboraciones"
+                fallback={footer.contacto.colaboraciones}
+                as="span"
+                maxLength={200}
+                multiline
+              />
             </li>
           </ul>
         </div>
