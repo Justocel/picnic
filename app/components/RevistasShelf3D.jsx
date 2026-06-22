@@ -96,46 +96,44 @@ function Book({
   }, [portada, contraTex, lomoTex, pagH, pagV]);
 
   // Target del estado actual.
-  // - Rest: rotation.y = -0.15 (lomo apenas insinuado, no de frente plano).
-  // - Hover: rotation.y = 0 (gira a portada de frente), Z+ más y scale más
-  //   notable para que se "lea" como clickable.
-  // - Selected: centrado, sin escalar fuerte (sino se corta del canvas).
+  // - Rest: rotation.y = -0.28 (girado, se ve dimensión 3D), scale 1.18.
+  // - Hover: rotation.y = 0 (portada de frente), Z+ y más scale.
+  // - Selected: centrado, scale moderado para no salirse del frustum al girar.
+  // - Background (hay otra seleccionada): NO desaparece — se atenúa y achica
+  //   manteniendo presencia como "estantería" detrás del libro en foco.
   const target = useMemo(() => {
     if (isSelected) {
-      // No escalamos demasiado para evitar que al girar (drag) se corte por
-      // el frustum de la cámara. El "agrandado" se siente por el centro + Z+.
       return {
-        position: [0, 0, 0.06],
+        position: [0, 0, 0.08],
         rotationY: 0,
         rotationX: 0,
-        scale: 1.0,
+        scale: 1.2,
         opacity: 1,
       };
     }
     if (isAnySelected) {
-      // Hay otro libro seleccionado: este se "esfuma".
       return {
-        position: basePosition,
-        rotationY: 0,
+        position: [basePosition[0], basePosition[1], basePosition[2] - 0.3],
+        rotationY: -0.28,
         rotationX: 0,
-        scale: 0.01,
-        opacity: 0,
+        scale: 0.75,
+        opacity: 0.32,
       };
     }
     if (isHovered) {
       return {
-        position: [basePosition[0], basePosition[1], basePosition[2] + 0.09],
+        position: [basePosition[0], basePosition[1], basePosition[2] + 0.1],
         rotationY: 0,
         rotationX: 0,
-        scale: 1.07,
+        scale: 1.28,
         opacity: 1,
       };
     }
     return {
       position: basePosition,
-      rotationY: -0.15,
+      rotationY: -0.28,
       rotationX: 0,
-      scale: 1,
+      scale: 1.18,
       opacity: 1,
     };
   }, [basePosition, isHovered, isSelected, isAnySelected]);

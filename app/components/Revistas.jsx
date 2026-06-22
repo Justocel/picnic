@@ -67,6 +67,17 @@ function Revistas() {
     }
   }, [activas, selectedId]);
 
+  // Mientras hay una revista seleccionada, bloqueamos el scroll del body
+  // para que el usuario no scrollee fuera del modo "foco" (con el dim activo).
+  useEffect(() => {
+    if (!selectedId) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [selectedId]);
+
   const handleAdd = async (revistaId) => {
     if (!user) {
       router.push('/login?next=/');
