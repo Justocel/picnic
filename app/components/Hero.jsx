@@ -2,9 +2,8 @@ import { secciones } from '../data/data';
 
 /**
  * COMPONENTE HERO
- * Video de fondo + claim editorial visible.
- * Si el video falla por cualquier razón, el claim sigue siendo el primer
- * elemento legible del sitio.
+ * Sección con video de fondo. El h1 va sr-only — el branding visible
+ * ya está en el header arriba; el h1 sigue ahí por SEO y a11y.
  */
 function Hero() {
   return (
@@ -13,11 +12,12 @@ function Hero() {
       className="seccion-hero"
       aria-label={`${secciones.hero.titulo} — ${secciones.hero.subtitulo}`}
     >
-      <video autoPlay muted loop playsInline className="hero-video" aria-hidden="true">
+      <h1 className="sr-only">
+        {secciones.hero.titulo} — {secciones.hero.subtitulo}
+      </h1>
+      <video autoPlay muted loop playsInline className="hero-video">
         <source src={secciones.hero.videoSrc} type="video/mp4" />
       </video>
-      <div className="hero-overlay" aria-hidden="true" />
-      <h1 className="hero-titulo">{secciones.hero.claim}</h1>
     </section>
   );
 }

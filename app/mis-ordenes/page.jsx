@@ -14,8 +14,11 @@ function MisOrdenesContent() {
   const { purchases, hydrated: purchasesReady } = usePurchases();
   const { getRevistaById, hydrated: revistasReady } = useRevistas();
 
-  // Agrupa purchases por order_id. Las compras viejas sin order_id quedan como
-  // órdenes individuales (key derivada del id de la compra).
+  // Agrupa purchases por order_id. Las compras viejas sin order_id quedan
+  // como órdenes individuales. Cada orden recibe un estado-resumen:
+  //   - "pendiente": al menos un item está pendiente (esperando webhook).
+  //   - "completada": todos los items en estado de ownership.
+  //   - "cancelada": todos cancelados.
   const orders = useMemo(() => {
     const groups = new Map();
     for (const p of purchases) {
@@ -28,9 +31,19 @@ function MisOrdenesContent() {
       g.total += Number(p.precio_pagado || 0);
       if (p.created_at < g.fecha) g.fecha = p.created_at;
     }
-    return Array.from(groups.values()).sort((a, b) =>
-      b.fecha.localeCompare(a.fecha)
-    );
+    const OWNED = new Set(['completada', 'pagada', 'confirmada']);
+    return Array.from(groups.values())
+      .map((g) => {
+        const anyPending = g.items.some((i) => i.estado === 'pendiente');
+        const allCancelled = g.items.every((i) => i.estado === 'cancelada');
+        const status = anyPending
+          ? 'pendiente'
+          : allCancelled
+            ? 'cancelada'
+            : 'completada';
+        return { ...g, status };
+      })
+      .sort((a, b) => b.fecha.localeCompare(a.fecha));
   }, [purchases]);
 
   if (!authReady || !purchasesReady || !revistasReady) {
@@ -77,7 +90,10 @@ function MisOrdenesContent() {
       ) : (
         <div className="ordenes-list">
           {orders.map((order) => (
-            <article key={order.key} className="orden-card">
+            <article
+              key={order.key}
+              className={`orden-card orden-card--${order.status}`}
+            >
               <header className="orden-header">
                 <div>
                   <span className="orden-fecha">
@@ -90,9 +106,22 @@ function MisOrdenesContent() {
                 </div>
                 <strong className="orden-total">${order.total}</strong>
               </header>
+              {order.status === 'pendiente' && (
+                <p className="orden-status orden-status--pendiente">
+                  Esperando confirmación de Mercado Pago. Si pagaste y no
+                  ves la revista en tu biblioteca, contactanos.
+                </p>
+              )}
+              {order.status === 'cancelada' && (
+                <p className="orden-status orden-status--cancelada">
+                  Esta orden fue cancelada. Si querés volver a comprar,
+                  agregá la revista al carrito de nuevo.
+                </p>
+              )}
               <ul className="orden-items">
                 {order.items.map((item) => {
                   const revista = getRevistaById(item.revista_id);
+                  const isOwned = ['completada', 'pagada', 'confirmada'].includes(item.estado);
                   return (
                     <li key={item.id} className="orden-item">
                       <span className="orden-item-titulo">
@@ -100,11 +129,16 @@ function MisOrdenesContent() {
                           ? revista.titulo ||
                             `Edición ${revista.numero_edicion}`
                           : 'Revista no disponible'}
+                        {!isOwned && (
+                          <span className={`orden-item-badge orden-item-badge--${item.estado}`}>
+                            {item.estado}
+                          </span>
+                        )}
                       </span>
                       <span className="orden-item-precio">
                         ${item.precio_pagado}
                       </span>
-                      {revista && (
+                      {revista && isOwned && (
                         <Link
                           href={`/leer/${revista.id}`}
                           className="orden-item-leer"
