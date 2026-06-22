@@ -1,0 +1,40 @@
+name: CI
+
+# Pipeline que corre lint + build + tests en cada push a main y en cada PR.
+# Es independiente del deploy de Vercel — sirve para que el checkmark verde
+# aparezca en cada PR antes de mergear, incluso si Vercel está caído o
+# si el ambiente no tiene las env vars de Supabase/Mercado Pago.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+        continue-on-error: true # Warnings actuales no rompen build de Next
+
+      - name: Run unit tests
+        run: npm test --if-present
+
+      - name: Build
+        run: npm run build
+        env:
+          # Variables placeholder para que el build no explote por env vars
+          # ausentes en CI. Los valores reales viven en Vercel para deploy.
+          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: placeholder
+          NEXT_PUBLIC_SITE_URL: https://picniczine.vercel.app

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { secciones } from '../data/data';
 import { useIntegrantes } from '../context/IntegrantesProvider';
 import { useEditMode } from '../context/EditModeProvider';
@@ -82,10 +83,13 @@ function Integrantes() {
               }`}
             >
               <div className="integrante">
-                <img
+                <Image
                   src={i.foto_path}
                   alt={i.nombre}
                   className="integrante-img"
+                  width={400}
+                  height={400}
+                  sizes="(max-width: 700px) 50vw, 200px"
                 />
                 <div className="info">
                   <h3>{i.nombre}</h3>

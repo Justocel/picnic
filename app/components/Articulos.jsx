@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState } from 'react';
 import { secciones } from '../data/data';
 import { useArticulos } from '../context/ArticulosProvider';
@@ -87,10 +88,13 @@ function Articulos() {
                 href={`/articulos/${articulo.slug}`}
                 className="articulo-card"
               >
-                <img
+                <Image
                   src={articulo.imagen_path}
                   alt={articulo.titulo}
                   className="articulo-image"
+                  width={1200}
+                  height={800}
+                  sizes="(max-width: 700px) 100vw, 600px"
                 />
                 <div className="articulo-overlay">
                   {articulo.categoria && (

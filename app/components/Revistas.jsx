@@ -83,19 +83,30 @@ function Revistas() {
     }
   }, [activas, selectedId]);
 
-  // Mientras hay una revista seleccionada: 1) scroll suave para centrar el
-  // shelf en el viewport (sino el libro elegido podría quedar cortado fuera
-  // de pantalla), 2) bloqueamos el scroll del body.
+  // Al seleccionar una revista: 1) scroll suave para centrar el shelf en
+  // el viewport (sino el libro elegido podría quedar cortado), 2) bloqueamos
+  // el scroll del body — pero RECIÉN cuando termina la animación de scroll,
+  // sino el lock corta el smooth a mitad de camino.
   useEffect(() => {
-    if (!selectedId) return;
-    if (wrapperRef.current) {
-      wrapperRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-    // Esperamos un tick para que el scroll smooth arranque antes de bloquear,
-    // sino el lock previene la animación.
-    const lockTimer = setTimeout(() => {
-      document.body.style.overflow = 'hidden';
-    }, 50);
+    if (!selectedId || !wrapperRef.current) return;
+
+    const reduced =
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    wrapperRef.current.scrollIntoView({
+      behavior: reduced ? 'auto' : 'smooth',
+      block: 'center',
+    });
+
+    // ~600ms cubre el scroll smooth (~400ms típico + 200 de margen). Si el
+    // usuario prefiere reduced motion, lockeamos inmediato.
+    const lockTimer = setTimeout(
+      () => {
+        document.body.style.overflow = 'hidden';
+      },
+      reduced ? 0 : 600,
+    );
     return () => {
       clearTimeout(lockTimer);
       document.body.style.overflow = '';

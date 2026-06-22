@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 
 /**
  * COMPONENTE VIDEO ITEM
@@ -35,12 +36,14 @@ function VideoItem({ videoData }) {
     >
       <div className="video-thumbnail-wrapper">
         {!thumbnailError ? (
-          <img
+          <Image
             src={thumbnailUrl}
             alt={videoData.titulo}
             className="video-thumbnail"
             onError={handleImgError}
-            loading="lazy"
+            width={1280}
+            height={720}
+            sizes="(max-width: 700px) 100vw, 320px"
           />
         ) : (
           <div className="video-thumbnail video-thumbnail-error">

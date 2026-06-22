@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useAuth } from '../context/AuthProvider';
@@ -85,10 +86,13 @@ function MisRevistasContent() {
         <div className="mis-revistas-grid">
           {items.map((revista) => (
             <article key={revista.purchase_id} className="mis-revistas-card">
-              <img
+              <Image
                 src={revista.portada_path}
                 alt={`Edición ${revista.numero_edicion}`}
                 className="mis-revistas-cover"
+                width={400}
+                height={566}
+                sizes="(max-width: 700px) 100vw, 240px"
               />
               <div className="mis-revistas-info">
                 <h2>{revista.titulo || `Edición ${revista.numero_edicion}`}</h2>
