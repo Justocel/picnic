@@ -175,12 +175,15 @@ export async function POST(request) {
     return Response.json({ ignored: true, reason: 'no_topic_or_id' });
   }
 
-  // Validar firma solo si vino body JSON con headers de firma (formato v2).
-  // El IPN clásico no firma — confiamos en que cuando consultamos el payment
-  // al SDK con nuestro access_token, MP nos da la verdad.
-  if (body && request.headers.get('x-signature')) {
-    if (!verifySignature(request, body?.data?.id)) {
-      console.warn('[mp webhook] firma inválida', { reqId });
+  // Validar firma solo si claramente vino formato Webhooks v2: body con
+  // data.id presente. El IPN clásico a veces incluye x-signature pero NO
+  // tiene body.data.id, así que la firma generada con id="undefined" no
+  // matchea y dispara falsos 401. Para IPN confiamos en que al consultar
+  // el payment con nuestro access_token, MP nos da la verdad.
+  const v2DataId = body?.data?.id;
+  if (v2DataId && request.headers.get('x-signature')) {
+    if (!verifySignature(request, v2DataId)) {
+      console.warn('[mp webhook] firma inválida', { reqId, v2DataId });
       return Response.json({ error: 'Firma inválida' }, { status: 401 });
     }
   }
