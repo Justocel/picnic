@@ -60,7 +60,9 @@ function Articulos() {
 
       <div className="articulos-container">
         {hydrated && articulos.length === 0 ? (
-          <p className="seccion-descripcion">Próximamente.</p>
+          <p className="seccion-placeholder-vacio">
+            Estamos escribiendo el próximo número. Volvé en unos días.
+          </p>
         ) : (
           articulos.map((articulo, idx) => (
             <div

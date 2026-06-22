@@ -58,7 +58,9 @@ function Integrantes() {
       </div>
       <div className="integrantes-container">
         {hydrated && integrantes.length === 0 ? (
-          <p className="seccion-descripcion">Próximamente.</p>
+          <p className="seccion-placeholder-vacio">
+            Pronto les presentamos al equipo, uno por uno.
+          </p>
         ) : (
           integrantes.map((i, idx) => (
             <div

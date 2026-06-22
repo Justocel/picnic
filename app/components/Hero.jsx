@@ -2,9 +2,9 @@ import { secciones } from '../data/data';
 
 /**
  * COMPONENTE HERO
- * Sección con video de fondo. El h1 va sr-only — el branding visible
- * ya está en el header arriba, pero el h1 sigue ahí por SEO y a11y
- * (si el video falla, los lectores de pantalla aún saben dónde están).
+ * Video de fondo + claim editorial visible.
+ * Si el video falla por cualquier razón, el claim sigue siendo el primer
+ * elemento legible del sitio.
  */
 function Hero() {
   return (
@@ -13,12 +13,11 @@ function Hero() {
       className="seccion-hero"
       aria-label={`${secciones.hero.titulo} — ${secciones.hero.subtitulo}`}
     >
-      <h1 className="sr-only">
-        {secciones.hero.titulo} — {secciones.hero.subtitulo}
-      </h1>
-      <video autoPlay muted loop playsInline className="hero-video">
+      <video autoPlay muted loop playsInline className="hero-video" aria-hidden="true">
         <source src={secciones.hero.videoSrc} type="video/mp4" />
       </video>
+      <div className="hero-overlay" aria-hidden="true" />
+      <h1 className="hero-titulo">{secciones.hero.claim}</h1>
     </section>
   );
 }

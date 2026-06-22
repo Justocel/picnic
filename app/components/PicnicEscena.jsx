@@ -103,7 +103,9 @@ function PicnicEscena() {
       </div>
       <div className="videos-grid">
         {hydrated && lista.length === 0 ? (
-          <p className="seccion-descripcion">Próximamente.</p>
+          <p className="seccion-placeholder-vacio">
+            Todavía no documentamos esta parte de la escena.
+          </p>
         ) : (
           lista.map((video) => (
             <div
