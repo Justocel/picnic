@@ -63,13 +63,18 @@ const ALLOWED_KEYS = new Set([
 ]);
 
 export function SiteSettingsProvider({ children }) {
-  const { user, isEditor } = useAuth();
+  const { user, isEditor, hydrated: authHydrated } = useAuth();
   const [settings, setSettings] = useState({});
   const [hydrated, setHydrated] = useState(false);
 
+  // Re-cargamos cuando el auth state termina de hidratarse o cambia el user.
+  // Sin esta dependencia, los providers que dependen de auth (Cart, Purchases)
+  // se rehidratan post-login pero SiteSettings se quedaba con la carga anon
+  // inicial, causando un render inconsistente que solo se resolvía refrescando.
   useEffect(() => {
+    if (!authHydrated) return;
     load();
-  }, []);
+  }, [authHydrated, user?.id]);
 
   const load = async () => {
     const { data, error } = await supabase
