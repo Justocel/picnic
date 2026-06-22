@@ -66,3 +66,29 @@ export const isValidEmail = (email) => {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
 };
 
+/**
+ * Decodifica las entidades HTML más comunes. YouTube devuelve títulos con
+ * `&quot;`, `&amp;`, `&#39;` literales — React no los decodifica al
+ * renderizar, así que los limpiamos antes (al guardar en DB o al pintar).
+ */
+const HTML_ENTITIES = {
+  '&quot;': '"',
+  '&#34;': '"',
+  '&apos;': "'",
+  '&#39;': "'",
+  '&amp;': '&',
+  '&lt;': '<',
+  '&gt;': '>',
+  '&nbsp;': ' ',
+};
+export const decodeHtmlEntities = (s) => {
+  if (typeof s !== 'string') return s;
+  let out = s;
+  for (const [entity, char] of Object.entries(HTML_ENTITIES)) {
+    out = out.split(entity).join(char);
+  }
+  // Fallback genérico: &#NNN; → char(NNN)
+  out = out.replace(/&#(\d+);/g, (_, n) => String.fromCharCode(parseInt(n, 10)));
+  return out;
+};
+

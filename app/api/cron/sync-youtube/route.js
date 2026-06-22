@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { decodeHtmlEntities } from '@/app/utils/utils';
 
 /**
  * CRON: sincroniza los últimos 20 videos del canal de YouTube con la tabla
@@ -61,8 +62,11 @@ export async function GET(request) {
     .filter((item) => item.id?.videoId)
     .map((item) => ({
       youtube_id: item.id.videoId,
-      titulo: item.snippet?.title || '(sin título)',
-      descripcion: item.snippet?.description || null,
+      // YouTube devuelve titles con entidades HTML ya escapadas (&quot;,
+      // &amp;, etc). Las decodificamos antes de guardar para que en la UI
+      // se vean limpias sin tener que decodificar en cada render.
+      titulo: decodeHtmlEntities(item.snippet?.title) || '(sin título)',
+      descripcion: decodeHtmlEntities(item.snippet?.description) || null,
       thumbnail_url:
         item.snippet?.thumbnails?.maxres?.url ||
         item.snippet?.thumbnails?.high?.url ||

@@ -45,3 +45,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# notas locales pre-producción (no se publican)
+PRODUCTION_PLAN.md

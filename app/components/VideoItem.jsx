@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import { decodeHtmlEntities } from '../utils/utils';
 
 /**
  * COMPONENTE VIDEO ITEM
@@ -18,6 +19,9 @@ function VideoItem({ videoData }) {
 
   const thumbnailUrl = `https://img.youtube.com/vi/${videoData.link}/${thumbnailQuality}.jpg`;
   const youtubeUrl = `https://youtu.be/${videoData.link}`;
+  // YouTube guarda los títulos con entidades HTML (&quot;, &amp;, etc).
+  // Las decodificamos al renderizar para que se vean limpias.
+  const titulo = decodeHtmlEntities(videoData.titulo || '');
 
   const handleImgError = () => {
     if (thumbnailQuality === 'maxresdefault') {
@@ -38,7 +42,7 @@ function VideoItem({ videoData }) {
         {!thumbnailError ? (
           <Image
             src={thumbnailUrl}
-            alt={videoData.titulo}
+            alt={titulo}
             className="video-thumbnail"
             onError={handleImgError}
             width={1280}
@@ -56,7 +60,7 @@ function VideoItem({ videoData }) {
           </svg>
         </span>
       </div>
-      <p>{videoData.titulo}</p>
+      <p>{titulo}</p>
     </a>
   );
 }

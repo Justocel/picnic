@@ -7,6 +7,7 @@ import {
   createSlug,
   classNames,
   extractYoutubeId,
+  decodeHtmlEntities,
 } from './utils';
 
 describe('safeNextPath', () => {
@@ -95,6 +96,26 @@ describe('classNames', () => {
   });
   it('vacío si nada es truthy', () => {
     expect(classNames({ a: false, b: 0, c: null })).toBe('');
+  });
+});
+
+describe('decodeHtmlEntities', () => {
+  it('decodifica entidades comunes', () => {
+    expect(decodeHtmlEntities('foo &quot;bar&quot;')).toBe('foo "bar"');
+    expect(decodeHtmlEntities('a &amp; b')).toBe('a & b');
+    expect(decodeHtmlEntities("don&#39;t stop")).toBe("don't stop");
+    expect(decodeHtmlEntities('1 &lt; 2 &gt; 0')).toBe('1 < 2 > 0');
+  });
+  it('decodifica entidades numéricas', () => {
+    expect(decodeHtmlEntities('caf&#233;')).toBe('café');
+  });
+  it('strings sin entidades quedan igual', () => {
+    expect(decodeHtmlEntities('hola mundo')).toBe('hola mundo');
+  });
+  it('null/undefined/no string devuelve sin tocar', () => {
+    expect(decodeHtmlEntities(null)).toBe(null);
+    expect(decodeHtmlEntities(undefined)).toBe(undefined);
+    expect(decodeHtmlEntities(42)).toBe(42);
   });
 });
 
