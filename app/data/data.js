@@ -15,12 +15,13 @@ export const COLORS = {
 // BIENVENIDA
 export const welcome = {
   paragraphs: [
-    'Si estás leyendo esto seguramente ya sabés dónde estás. ¡Bienvenidx a PICNIC! Este es nuestro primer número y te agradecemos profundamente que lo estés leyendo. También si estás acá, en un principio, hay una gran probabilidad de que compartamos bastantes gustos. Eso es también lo que hacemos. Recapitulemos: PICNIC, la revista del arte fino, tiene como razón de ser la creación de contenidos periodísticos sobre arte en general (¡no dejamos afuera a nadie!). Nos gusta el cine, la música, el teatro, la pintura, la escultura, la literatura, la poesía. Todo tipo de arte.',
-    '¿Por qué arte fino? Consideramos que toda expresión artística, si atraviesa un sentimiento, tiene una razón de ser. Si hacés una búsqueda rápida en Google sobre qué es el arte fino, seguramente te salga que es un tipo de arte visual creado principalmente con propósitos estéticos, intelectuales o emocionales, en contraposición a las artes decorativas o utilitarias.',
-    'Por eso mismo es que consideramos que hacemos periodismo de arte fino. El arte fino nos emociona y por eso es que todos los días elegimos poner el cuerpo a su disposición: ir a lugares donde se respire arte fino y nos rodee por completo y, justamente por eso, es que nos pareció incluso más interesante también hablar con los artistas y hacerles toda clase de preguntas.',
-    'Creemos que también es otra forma de popularizar el arte y democratizarlo. Hay momentos en que pensamos: "si nadie graba esto, ¿realmente existió?" Consideramos que hay artistas que nos gustan tanto que queremos compartirlos con todo el mundo. Esa será la base de siempre. Y, por último, en la base de la revista también estás vos, ¡fiel lectorx! Ahora vos también tenés la potestad de contarle a todo el mundo que hay un lugar en donde hablan de lo que te gusta',
+    'Picnic es una revista. Cada número es una mesa puesta para artistas que el algoritmo todavía no descubrió: el taller antes que el booth, el nombre antes que el movimiento, el oficio antes que el hype.',
+    'Si estás leyendo esto seguramente ya sabés dónde estás. Este es nuestro primer número y te agradecemos profundamente que lo estés leyendo. Picnic, la revista del arte fino, tiene como razón de ser la creación de contenidos periodísticos sobre arte en general. Nos gusta el cine, la música, el teatro, la pintura, la escultura, la literatura, la poesía. Todo tipo de arte.',
+    '¿Por qué arte fino? Consideramos que toda expresión artística, si atraviesa un sentimiento, tiene una razón de ser. El arte fino es un tipo de arte creado principalmente con propósitos estéticos, intelectuales o emocionales, en contraposición a las artes decorativas o utilitarias.',
+    'Por eso hacemos periodismo de arte fino. Nos emociona y por eso ponemos el cuerpo: vamos a lugares donde se respira arte fino, hablamos con los artistas, les hacemos toda clase de preguntas.',
+    'Creemos que también es otra forma de popularizar el arte y democratizarlo. Si nadie graba esto, ¿realmente existió? Hay artistas que nos gustan tanto que queremos compartirlos con todo el mundo. Esa es la base. Sentate. Hojeá despacio. No hay apuro.',
   ],
-  pullQuote: 'Si nadie graba esto, ¿realmente existió?',
+  pullQuote: 'No somos un feed. Cada número tiene tapa, índice y final.',
   pullQuoteAfter: 1,
 };
 
@@ -84,47 +85,48 @@ export const secciones = {
     id: 'hero',
     titulo: 'Picnic',
     subtitulo: 'La revista del arte fino',
+    claim: 'Una mesa larga para el arte fino.',
     videoSrc: '/icon.mp4',
   },
   articulos: {
     id: 'articulos',
     titulo: 'Artículos',
-    descripcion: 'Lecturas para llevarte',
+    descripcion: 'Textos largos sobre obras, oficios y conversaciones de taller.',
   },
   eventosProximos: {
     id: 'eventos-proximos',
     titulo: 'Eventos próximos',
-    descripcion: 'No te los pierdas',
+    descripcion: 'Picnics reales: lecturas, muestras, sobremesas.',
   },
   eventosPasados: {
     id: 'eventos-pasados',
     titulo: 'Eventos pasados',
-    descripcion: 'Lo que ya vivimos',
+    descripcion: 'Lo que ya cubrimos.',
   },
   picnicEscena: {
     id: 'picnic-en-la-escena',
     titulo: 'Picnic en la escena',
-    descripcion: 'La escena en primera persona',
+    descripcion: 'Lo que pasa cuando apagamos la cámara y seguimos hablando.',
   },
   gracias: {
     id: 'gracias-intercomunicacion',
     titulo: 'Gracias por la intercomunicación',
-    descripcion: 'Conversaciones con artistas emergentes',
+    descripcion: 'Conversaciones con artistas emergentes.',
   },
   picnic: {
     id: 'picnic-en-la-tierra',
     titulo: 'Picnic en la tierra',
-    descripcion: 'Cobertura periodística de la escena con la esencia picnic',
+    descripcion: 'Cobertura periodística de la escena.',
   },
   revistas: {
     id: 'consegui-tu-revista',
     titulo: 'Conseguí la revista',
-    descripcion: 'No te quedes afuera',
+    descripcion: 'Números cerrados. Cada uno se hojea entero.',
   },
   equipo: {
     id: 'quienes-somos',
     titulo: 'Quiénes Somos',
-    descripcion: 'Conoce al equipo Picnic',
+    descripcion: 'Las personas que arman cada número, una por una.',
   },
 };
 
@@ -141,7 +143,7 @@ export const navLinks = [
 // FOOTER
 export const footer = {
   brand: 'Picnic',
-  tagline: 'La revista del arte fino',
+  tagline: 'La revista del arte fino. Editada en Buenos Aires, número por número.',
   socials: [
     { label: 'Instagram', href: 'https://instagram.com/' },
     { label: 'TikTok', href: 'https://tiktok.com/' },
@@ -149,7 +151,7 @@ export const footer = {
   ],
   contacto: {
     email: 'contacto@picniczine.com',
-    colaboraciones: 'Para colaborar, escribinos.',
+    colaboraciones: 'Si hacés algo que merece una mesa, escribinos.',
   },
   copyright: 'Picniczine. Todos los derechos reservados.',
 };
