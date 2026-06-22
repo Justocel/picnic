@@ -13,17 +13,16 @@ E-commerce + sitio editorial para **Picnic**, una revista de arte fino. Trabajo 
 1. Abrir `picniczine.vercel.app`.
 2. Scrollear: Hero con video, Welcome editorial, Artículos, Eventos próximos/pasados, "Picnic en la escena" (videos sincronizados desde YouTube por cron), **Conseguí la revista** (escena 3D interactiva con cada edición), Quiénes Somos.
 3. En el shelf 3D: **drag** sobre una revista para rotarla (vertical y horizontal), **click** la enfoca con dim del fondo + panel de compra. ESC o click afuera vuelve a la fila.
-4. Click **Artículos** → leer el artículo de muestra (markdown renderizado).
+4. Click **Artículos** → leer el artículo de muestra.
 
 ### Recorrido como usuario comprador
-1. **Crear cuenta**: botón "Iniciar sesión" → "Registrate". Email + password (mínimo 8).
-2. **Confirmar email**: Supabase Auth manda un mail. Click el link.
-3. Volver al sitio, login, agregar una edición al carrito (icono 🛒).
-4. **Pagar con Mercado Pago** (modo TEST):
+1. **Crear cuenta**: botón "Iniciar sesión" → "Registrate". Email + password (mínimo 8). La sesión queda iniciada de inmediato (confirmación de email deshabilitada en esta entrega; la arquitectura lo soporta y es un toggle del dashboard).
+2. Agregar una edición al carrito (icono 🛒).
+3. **Pagar con Mercado Pago** (modo TEST):
    - Tarjeta `5031 7557 3453 0604`, CVV `123`, vencimiento `11/30`, titular `APRO 123456`.
    - El webhook server-side confirma la compra; aparece en `/mis-revistas`.
-5. **Leer la revista**: en `/mis-revistas` → "Leer revista" → PDF embebido (anti-piracy básico: signed URL con TTL, sin descarga directa).
-6. Ver `/mis-ordenes`: historial agrupado con estados (`pendiente`, `pagada`, `cancelada`).
+4. **Leer la revista**: en `/mis-revistas` → "Leer revista" → PDF embebido (anti-piracy básico: signed URL con TTL, sin descarga directa).
+5. Ver `/mis-ordenes`: historial agrupado con estados (`pendiente`, `pagada`, `cancelada`).
 
 ### Recorrido como editor (modo edición inline)
 **Requiere link de invitación** — para no exponer un endpoint público que cualquiera podría usar para hacerse editor, el sistema usa tokens únicos. Si sos el evaluador y querés probar el modo edición, **pediré el link al autor por mail** o por el canal de la materia. Te llega un URL con `?invite=<token>` único y de un solo uso (vence en 7 días).

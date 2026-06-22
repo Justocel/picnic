@@ -66,15 +66,3 @@ export const isValidEmail = (email) => {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
 };
 
-const Utils = {
-  formatDate,
-  isEventFuture,
-  classifyEvents,
-  getYoutubeThumbnail,
-  extractYoutubeId,
-  truncateText,
-  createSlug,
-  classNames,
-};
-
-export default Utils;

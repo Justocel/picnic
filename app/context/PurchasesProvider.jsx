@@ -5,16 +5,11 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from './AuthProvider';
 
 /**
- * PURCHASES PROVIDER — persistente en purchases (Supabase).
+ * PURCHASES PROVIDER — cache de las purchases del usuario logueado.
  *
- * - crearOrden() llama al stored procedure crear_orden_completa() vía RPC.
- *   El procedure corre en una sola transacción server-side: inserta purchases
- *   + vacía el carrito atómicamente. Si algo falla (carrito vacío, revista
- *   inactiva, constraint violation), todo se revierte — no queda compra a
- *   medias ni carrito a medias.
- * - Total y precio_pagado los calcula el server desde revistas.precio, no se
- *   pueden spoofear desde el cliente.
- * - hasPurchase(revistaId) responde sin consulta — usa el cache cargado.
+ * Se rehidrata cuando cambia el user. Después de un pago real, la
+ * confirmación viene por webhook server-side; el cliente puede llamar
+ * `reloadPurchases()` para reflejar el cambio (ej. desde /pago/exito).
  */
 const PurchasesContext = createContext(null);
 
@@ -48,23 +43,6 @@ export function PurchasesProvider({ children }) {
     setHydrated(true);
   };
 
-  /**
-   * Crea una orden atómica a partir del carrito del usuario.
-   * Returns: { data: { order_id, total, items_count } | null, error }
-   */
-  const crearOrden = async (metodoPago = 'mock') => {
-    if (!user) return { data: null, error: { code: 'NO_AUTH', message: 'No logueado' } };
-    const { data, error } = await supabase.rpc('crear_orden_completa', {
-      p_metodo_pago: metodoPago,
-    });
-    if (error) {
-      console.error('Error creando orden:', error.message);
-      return { data: null, error };
-    }
-    await loadPurchases();
-    return { data, error: null };
-  };
-
   // Solo cuenta como "comprada" si está en estado de ownership. Una purchase
   // 'pendiente' (esperando webhook) o 'cancelada' no habilita acceso al PDF.
   const OWNED_STATES = new Set(['completada', 'pagada', 'confirmada']);
@@ -73,7 +51,12 @@ export function PurchasesProvider({ children }) {
 
   return (
     <PurchasesContext.Provider
-      value={{ purchases, hydrated, crearOrden, hasPurchase }}
+      value={{
+        purchases,
+        hydrated,
+        hasPurchase,
+        reloadPurchases: loadPurchases,
+      }}
     >
       {children}
     </PurchasesContext.Provider>

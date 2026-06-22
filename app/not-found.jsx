@@ -14,7 +14,7 @@ export default function NotFound() {
       <main className="error-page">
         <div className="error-content">
           <h1 className="error-code">404</h1>
-          <h2 className="error-title">Aca no hay Picnic</h2>
+          <h2 className="error-title">Acá no hay Picnic</h2>
           <p className="error-message">
             La página que buscás no existe o se mudó a otro lugar.
           </p>

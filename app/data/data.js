@@ -27,51 +27,10 @@ export const welcome = {
 
 // ARTICULOS — ahora viven en la tabla articulos (Supabase). Ver ArticulosProvider.
 
-// EVENTOS
-export const eventos = [
-  {
-    id: 1,
-    nombre: 'Evento Próximo 1',
-    fecha: '2026-05-05',
-    image: '/Eventos/1.png',
-    estado: 'futuro',
-  },
-  {
-    id: 2,
-    nombre: 'Evento Próximo 2',
-    fecha: '2026-05-10',
-    image: '/Eventos/2.png',
-    estado: 'futuro',
-  },
-  {
-    id: 3,
-    nombre: 'Evento Próximo 3',
-    fecha: '2026-05-15',
-    image: '/Eventos/3.png',
-    estado: 'futuro',
-  },
-  {
-    id: 4,
-    nombre: 'Evento Pasado 1',
-    fecha: '2026-03-30',
-    image: '/Eventos/4.png',
-    estado: 'pasado',
-  },
-  {
-    id: 5,
-    nombre: 'Evento Pasado 2',
-    fecha: '2026-03-25',
-    image: '/Eventos/5.png',
-    estado: 'pasado',
-  },
-  {
-    id: 6,
-    nombre: 'Evento Pasado 3',
-    fecha: '2026-03-20',
-    image: '/Eventos/6.png',
-    estado: 'pasado',
-  },
-];
+// EVENTOS — vacío por ahora. Cuando se cubra un evento real, el editor lo
+// vuelve a poblar (futura iteración: CRUD inline). Mientras tanto, la
+// sección entera se oculta del público (ver Events.jsx).
+export const eventos = [];
 
 // VIDEOS — ahora viven en la tabla videos (Supabase). Ver VideosProvider.
 
@@ -85,7 +44,6 @@ export const secciones = {
     id: 'hero',
     titulo: 'Picnic',
     subtitulo: 'La revista del arte fino',
-    claim: 'Una mesa larga para el arte fino.',
     videoSrc: '/icon.mp4',
   },
   articulos: {
@@ -140,24 +98,14 @@ export const navLinks = [
   { label: 'Quiénes Somos', href: '/#quienes-somos' },
 ];
 
-// FOOTER
+// FOOTER — los links a redes sociales viven en site_settings (DB) editables
+// inline por el editor. Acá quedan los textos de marca con fallback.
 export const footer = {
   brand: 'Picnic',
   tagline: 'La revista del arte fino. Editada en Buenos Aires, número por número.',
-  socials: [
-    { label: 'Instagram', href: 'https://instagram.com/' },
-    { label: 'TikTok', href: 'https://tiktok.com/' },
-    { label: 'YouTube', href: 'https://youtube.com/' },
-  ],
   contacto: {
     email: 'contacto@picniczine.com',
     colaboraciones: 'Si hacés algo que merece una mesa, escribinos.',
   },
   copyright: 'Picniczine. Todos los derechos reservados.',
 };
-
-/**
- * Retorna la fecha de hoy.
- * Se usa en Events.jsx para comparar eventos pasados vs futuros.
- */
-export const getTodayDate = () => new Date();

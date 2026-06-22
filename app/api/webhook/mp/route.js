@@ -2,6 +2,14 @@ import crypto from 'node:crypto';
 import { createClient } from '@supabase/supabase-js';
 import { getPaymentClient, getMerchantOrderClient } from '@/lib/mercadopago';
 
+// Logger condicional para no inundar Vercel Logs con payloads en producción
+// pero mantener visibilidad si se setea LOG_WEBHOOK=1 puntualmente.
+const verboseLog =
+  process.env.NODE_ENV !== 'production' || process.env.LOG_WEBHOOK === '1';
+const log = (...args) => {
+  if (verboseLog) console.log(...args);
+};
+
 /**
  * POST /api/webhook/mp
  *
@@ -67,7 +75,7 @@ async function processPayment(supabase, paymentId, ctx) {
   const pagadoEn =
     payment?.date_approved || payment?.date_last_updated || new Date().toISOString();
 
-  console.log('[mp webhook] payment fetched', {
+  log('[mp webhook] payment fetched', {
     ...ctx,
     paymentId: payment?.id,
     status: estadoMp,
@@ -85,7 +93,7 @@ async function processPayment(supabase, paymentId, ctx) {
     p_pagado_en: pagadoEn,
   });
 
-  console.log('[mp webhook] confirmar_pago result', {
+  log('[mp webhook] confirmar_pago result', {
     ...ctx,
     orderId,
     paymentId: payment?.id,
@@ -114,7 +122,7 @@ async function processMerchantOrder(supabase, merchantOrderId, ctx) {
     return { ok: false, reason: 'fetch_failed' };
   }
   const payments = Array.isArray(mo?.payments) ? mo.payments : [];
-  console.log('[mp webhook] merchant_order fetched', {
+  log('[mp webhook] merchant_order fetched', {
     ...ctx,
     merchantOrderId,
     status: mo?.status,
@@ -139,7 +147,7 @@ export async function POST(request) {
   const queryTopic = url.searchParams.get('topic') || url.searchParams.get('type');
   const queryId = url.searchParams.get('id') || url.searchParams.get('data.id');
 
-  console.log('[mp webhook] incoming', {
+  log('[mp webhook] incoming', {
     reqId,
     queryTopic,
     queryId,
@@ -171,7 +179,7 @@ export async function POST(request) {
   const resourceId = body?.data?.id || queryId;
 
   if (!topic || !resourceId) {
-    console.log('[mp webhook] ignorado: sin topic o id', { reqId, topic, resourceId });
+    log('[mp webhook] ignorado: sin topic o id', { reqId, topic, resourceId });
     return Response.json({ ignored: true, reason: 'no_topic_or_id' });
   }
 
@@ -200,7 +208,7 @@ export async function POST(request) {
     return Response.json({ topic, ...r });
   }
 
-  console.log('[mp webhook] topic desconocido', { reqId, topic });
+  log('[mp webhook] topic desconocido', { reqId, topic });
   return Response.json({ ignored: true, topic });
 }
 

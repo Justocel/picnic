@@ -80,11 +80,13 @@ export async function POST(request) {
     console.error('[checkout] orderId inválido', { orderData });
     return Response.json({ error: 'order_id inválido' }, { status: 500 });
   }
-  console.log('[checkout] preference base', {
-    orderId,
-    items: items.length,
-    siteUrl,
-  });
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('[checkout] preference base', {
+      orderId,
+      items: items.length,
+      siteUrl,
+    });
+  }
 
   // 3) Crear preferencia en MP.
   const preferenceClient = getPreferenceClient();

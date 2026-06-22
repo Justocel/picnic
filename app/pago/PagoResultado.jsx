@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -9,18 +9,36 @@ import { usePurchases } from '../context/PurchasesProvider';
 
 /**
  * Componente compartido para las páginas /pago/exito, /pendiente, /error.
- * Refresca purchases y carrito cuando vuelve el user del checkout de MP.
+ *
+ * Cuando el user vuelve del checkout de MP, el webhook server-side puede
+ * tardar 2-30s en marcar la purchase como 'pagada'. Esta página reintenta
+ * `reloadPurchases()` cada 2s hasta 5 veces para que cuando el user
+ * navegue a /mis-revistas, la compra esté ya reflejada localmente.
  */
 export default function PagoResultado({ titulo, subtitulo, mensaje, variant, primaryHref, primaryText }) {
   const { refreshCart } = useCart();
-  const { hydrated: purchasesHydrated } = usePurchases();
+  const { hydrated: purchasesHydrated, reloadPurchases } = usePurchases();
+  const [refreshing, setRefreshing] = useState(true);
 
   useEffect(() => {
-    refreshCart();
-    // PurchasesProvider se rehidrata por su cuenta cuando cambia el auth state.
-    // No tenemos un reloadPurchases expuesto, pero el provider re-fetcha en el
-    // mount si el user está logueado.
-  }, [refreshCart]);
+    let cancelled = false;
+    let attempts = 0;
+    const tick = async () => {
+      if (cancelled) return;
+      await refreshCart();
+      await reloadPurchases();
+      attempts++;
+      if (attempts < 5 && !cancelled) {
+        setTimeout(tick, 2000);
+      } else if (!cancelled) {
+        setRefreshing(false);
+      }
+    };
+    tick();
+    return () => {
+      cancelled = true;
+    };
+  }, [refreshCart, reloadPurchases]);
 
   return (
     <>
@@ -38,7 +56,7 @@ export default function PagoResultado({ titulo, subtitulo, mensaje, variant, pri
               Volver al inicio
             </Link>
           </div>
-          {!purchasesHydrated && (
+          {(refreshing || !purchasesHydrated) && (
             <p className="pago-resultado-loading">Actualizando tu cuenta…</p>
           )}
         </div>

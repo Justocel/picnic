@@ -19,20 +19,18 @@ import { useAuth } from './AuthProvider';
  */
 const SiteSettingsContext = createContext(null);
 
-// Whitelist de keys editables. Cualquier intento de modificar una key fuera
-// de esta lista falla con error explícito (defensa en profundidad — la RLS
-// del lado server ya filtra, pero esto evita typos del cliente).
+// Whitelist de keys editables. Defensa en profundidad sobre la RLS server:
+// si un cliente intenta modificar una key fuera de la lista, falla con
+// error explícito sin tocar la DB. Mantener sincronizada con los
+// componentes que renderizan <EditableText settingKey="...">.
 const ALLOWED_KEYS = new Set([
-  // Contacto y redes
+  // Contacto y redes (Footer)
   'contact_email',
   'instagram_url',
   'youtube_url',
   'whatsapp_url',
   'twitter_url',
-  'tiktok_url',
-  'bio_corta',
-  // Textos editoriales — Hero / Welcome
-  'hero_claim',
+  // Welcome
   'welcome_p1',
   'welcome_p2',
   'welcome_p3',
@@ -43,7 +41,7 @@ const ALLOWED_KEYS = new Set([
   'footer_brand',
   'footer_tagline',
   'footer_colaboraciones',
-  // Descripciones de sección (titulo + descripcion para cada una)
+  // Headers de sección (titulo + descripcion donde aplique)
   'seccion_articulos_titulo',
   'seccion_articulos_descripcion',
   'seccion_eventos_proximos_titulo',
@@ -51,13 +49,7 @@ const ALLOWED_KEYS = new Set([
   'seccion_eventos_pasados_titulo',
   'seccion_eventos_pasados_descripcion',
   'seccion_picnic_escena_titulo',
-  'seccion_picnic_escena_descripcion',
-  'seccion_gracias_titulo',
-  'seccion_gracias_descripcion',
-  'seccion_picnic_titulo',
-  'seccion_picnic_descripcion',
   'seccion_revistas_titulo',
-  'seccion_revistas_descripcion',
   'seccion_equipo_titulo',
   'seccion_equipo_descripcion',
 ]);

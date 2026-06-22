@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -13,7 +12,6 @@ function MisRevistasContent() {
   const { user, hydrated: authReady } = useAuth();
   const { purchases, hydrated: purchasesReady } = usePurchases();
   const { getRevistaById, hydrated: revistasReady } = useRevistas();
-  const [aviso, setAviso] = useState('');
 
   if (!authReady || !purchasesReady || !revistasReady) {
     return <main className="mis-revistas-page" />;
@@ -64,14 +62,6 @@ function MisRevistasContent() {
     })
     .filter(Boolean);
 
-  const handleDescarga = (revista, formato) => {
-    setAviso(
-      `Descarga simulada: ${formato.toUpperCase()} de Edición #${revista.numero_edicion}. ` +
-      `Disponible cuando se conecte el storage.`
-    );
-    setTimeout(() => setAviso(''), 4000);
-  };
-
   return (
     <main className="mis-revistas-page">
       <div className="mis-revistas-header">
@@ -83,8 +73,6 @@ function MisRevistasContent() {
           Ver historial de órdenes
         </Link>
       </div>
-
-      {aviso && <div className="mis-revistas-aviso">{aviso}</div>}
 
       {items.length === 0 ? (
         <div className="mis-revistas-vacio">
@@ -111,12 +99,6 @@ function MisRevistasContent() {
                   <Link href={`/leer/${revista.id}`} className="auth-submit">
                     Leer revista
                   </Link>
-                  <button
-                    className="auth-submit auth-submit--ghost"
-                    onClick={() => handleDescarga(revista, 'epub')}
-                  >
-                    Descargar EPUB
-                  </button>
                 </div>
               </div>
             </article>
