@@ -10,7 +10,9 @@ import { useState } from 'react';
 function VideoItem({ videoData }) {
   const [thumbnailError, setThumbnailError] = useState(false);
 
-  const thumbnailUrl = `https://img.youtube.com/vi/${videoData.link}/hqdefault.jpg`;
+  // mqdefault.jpg es 320x180 (16:9 nativo), a diferencia de hqdefault (4:3).
+  // Así no necesitamos recortar y todos los thumbs tienen el mismo aspect.
+  const thumbnailUrl = `https://img.youtube.com/vi/${videoData.link}/mqdefault.jpg`;
   const youtubeUrl = `https://youtu.be/${videoData.link}`;
 
   return (

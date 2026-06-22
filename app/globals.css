@@ -602,12 +602,17 @@ h2 {
   display: block;
   border-radius: var(--radius-sm);
   overflow: hidden;
+  /* Aspect ratio forzado en el WRAPPER (no en la img) garantiza que TODOS
+     los items del grid tengan exactamente la misma altura, sin importar
+     qué thumbnail devuelva YouTube. */
+  aspect-ratio: 16 / 9;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.25);
 }
 
 .video-thumbnail {
   width: 100%;
-  aspect-ratio: 16 / 9;
-  height: auto;
+  height: 100%;
   object-fit: cover;
   border-radius: var(--radius-sm);
   display: block;
