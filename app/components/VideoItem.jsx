@@ -8,12 +8,23 @@ import { useState } from 'react';
  * Si falla la imagen, muestra un fallback.
  */
 function VideoItem({ videoData }) {
+  // Empezamos por maxresdefault (1280x720, 16:9, alta calidad). Si YouTube
+  // no lo generó para ese video — pasa con uploads vertical o shorts —, el
+  // onError baja a mqdefault (320x180, 16:9 garantizado). Si ese tampoco,
+  // muestra el placeholder.
+  const [thumbnailQuality, setThumbnailQuality] = useState('maxresdefault');
   const [thumbnailError, setThumbnailError] = useState(false);
 
-  // mqdefault.jpg es 320x180 (16:9 nativo), a diferencia de hqdefault (4:3).
-  // Así no necesitamos recortar y todos los thumbs tienen el mismo aspect.
-  const thumbnailUrl = `https://img.youtube.com/vi/${videoData.link}/mqdefault.jpg`;
+  const thumbnailUrl = `https://img.youtube.com/vi/${videoData.link}/${thumbnailQuality}.jpg`;
   const youtubeUrl = `https://youtu.be/${videoData.link}`;
+
+  const handleImgError = () => {
+    if (thumbnailQuality === 'maxresdefault') {
+      setThumbnailQuality('mqdefault');
+    } else {
+      setThumbnailError(true);
+    }
+  };
 
   return (
     <a
@@ -28,7 +39,7 @@ function VideoItem({ videoData }) {
             src={thumbnailUrl}
             alt={videoData.titulo}
             className="video-thumbnail"
-            onError={() => setThumbnailError(true)}
+            onError={handleImgError}
             loading="lazy"
           />
         ) : (
