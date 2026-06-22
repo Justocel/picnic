@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { secciones } from '../data/data';
@@ -12,17 +12,21 @@ import { trackEvent } from '@/lib/analytics';
 import { friendlyCartError } from '@/lib/errorMessages';
 import RevistaEditModal from './RevistaEditModal';
 
-const Revista3D = dynamic(() => import('./Revista3D'), {
+const RevistasShelf3D = dynamic(() => import('./RevistasShelf3D'), {
   ssr: false,
-  loading: () => <div className="revista-3d-canvas revista-3d-fallback" />,
+  loading: () => <div className="revistas-shelf-canvas revistas-shelf-fallback" />,
 });
 
 /**
  * COMPONENTE REVISTAS
  *
- * Public: muestra la primera edición activa con escena 3D y botón de compra.
- * Edit mode: lista todas las ediciones (activas e inactivas) con controles
- * CRUD inline. PDF se sube desde el modal de edición (necesita el UUID).
+ * Modo público: una sola escena 3D ("shelf") con todas las ediciones activas
+ * paralelas, mismo tratamiento por default. Hover sobre una la adelanta y la
+ * gira de frente; las hermanas no se atenúan (se mantienen igual). La UI
+ * debajo (título + precio + comprar) refleja la edición bajo el cursor;
+ * cuando no hay hover, hace un placeholder o muestra info de la más reciente.
+ *
+ * Modo edición: lista admin con CRUD inline, sin cambios.
  */
 function Revistas() {
   const router = useRouter();
@@ -37,10 +41,16 @@ function Revistas() {
   } = useRevistas();
   const { addToCart, setShowCart, hasInCart } = useCart();
   const { editMode } = useEditMode();
-  const [editing, setEditing] = useState(null); // null | 'new' | <revista>
+  const [editing, setEditing] = useState(null);
   const [addError, setAddError] = useState('');
-  const [carouselIdx, setCarouselIdx] = useState(0);
-  const touchStartX = useRef(null);
+  const [hoveredId, setHoveredId] = useState(null);
+
+  const activas = revistas.filter((r) => r.activa);
+  // Cuando no hay hover, mostramos la info de la primera (más reciente, por orden DESC).
+  // Cuando hovereás, muestra la info de esa.
+  const focused = hoveredId
+    ? activas.find((r) => r.id === hoveredId) || activas[0]
+    : activas[0];
 
   const handleAdd = async (revistaId) => {
     if (!user) {
@@ -67,7 +77,6 @@ function Revistas() {
 
   const handlePdfUploaded = async (revistaId, newPath) => {
     await updateRevista(revistaId, { pdf_path: newPath });
-    // Refrescá el editing state local para que el modal muestre el nuevo path
     setEditing((cur) =>
       cur && cur !== 'new' && cur.id === revistaId
         ? { ...cur, pdf_path: newPath }
@@ -90,24 +99,6 @@ function Revistas() {
           '\nTip: marcala como "inactiva" en vez de borrarla.'
       );
     }
-  };
-
-  const activas = revistas.filter((r) => r.activa);
-
-  // Carrusel: clamp del índice por si la lista cambia (ej. desactivan una edición).
-  const safeIdx = activas.length === 0 ? 0 : Math.min(carouselIdx, activas.length - 1);
-  const current = activas[safeIdx] || null;
-  const goPrev = () =>
-    setCarouselIdx((i) => (i - 1 + activas.length) % activas.length);
-  const goNext = () => setCarouselIdx((i) => (i + 1) % activas.length);
-  const onTouchStart = (e) => {
-    touchStartX.current = e.touches[0].clientX;
-  };
-  const onTouchEnd = (e) => {
-    if (touchStartX.current == null || activas.length <= 1) return;
-    const dx = e.changedTouches[0].clientX - touchStartX.current;
-    if (Math.abs(dx) > 60) (dx > 0 ? goPrev : goNext)();
-    touchStartX.current = null;
   };
 
   return (
@@ -181,85 +172,38 @@ function Revistas() {
             </article>
           ))}
         </div>
+      ) : activas.length === 0 && hydrated ? (
+        <div className="revistas-shelf-empty">
+          <p>No hay revistas disponibles todavía.</p>
+        </div>
       ) : (
-        <div
-          className="revistas-container revistas-container--3d"
-          onTouchStart={onTouchStart}
-          onTouchEnd={onTouchEnd}
-        >
-          {!hydrated && (
-            <div className="revista-item revista-item--3d">
-              <Revista3D />
-            </div>
-          )}
-          {hydrated && activas.length === 0 && (
-            <p className="seccion-descripcion">
-              No hay revistas disponibles todavía.
-            </p>
-          )}
-          {current && (
-            <div className="revista-carousel">
-              {activas.length > 1 && (
-                <button
-                  type="button"
-                  className="revista-carousel-arrow revista-carousel-arrow--prev"
-                  onClick={goPrev}
-                  aria-label="Edición anterior"
-                >
-                  ←
-                </button>
+        <div className="revistas-shelf-wrapper">
+          <RevistasShelf3D
+            revistas={activas}
+            hoveredId={hoveredId}
+            setHoveredId={setHoveredId}
+          />
+          {focused && (
+            <div className="revistas-shelf-info">
+              <h2 className="revistas-shelf-titulo">
+                {focused.titulo || `Edición #${focused.numero_edicion}`}
+              </h2>
+              {focused.descripcion && (
+                <p className="revistas-shelf-desc">{focused.descripcion}</p>
               )}
-              <div className="revista-item revista-item--3d">
-                <Revista3D
-                  key={current.id}
-                  portadaPath={current.portada_path}
-                />
-                <h2 className="revista-carousel-titulo">
-                  {current.titulo || `Edición ${current.numero_edicion}`}
-                </h2>
-                <button
-                  className="revista-add-btn revista-add-btn--3d"
-                  onClick={() => handleAdd(current.id)}
-                  disabled={hasInCart(current.id)}
-                  aria-label={
-                    hasInCart(current.id)
-                      ? 'Esta revista ya está en tu carrito'
-                      : `Agregar Edición ${current.numero_edicion} al carrito`
-                  }
-                >
-                  {hasInCart(current.id) ? 'En el carrito' : 'Agregar al carrito'}
-                </button>
-              </div>
-              {activas.length > 1 && (
-                <button
-                  type="button"
-                  className="revista-carousel-arrow revista-carousel-arrow--next"
-                  onClick={goNext}
-                  aria-label="Próxima edición"
-                >
-                  →
-                </button>
-              )}
+              <button
+                type="button"
+                className="revista-add-btn revista-add-btn--3d"
+                onClick={() => handleAdd(focused.id)}
+                disabled={hasInCart(focused.id)}
+              >
+                {hasInCart(focused.id)
+                  ? 'En el carrito'
+                  : `Agregar — $${focused.precio}`}
+              </button>
+              {addError && <p className="cart-warning">{addError}</p>}
             </div>
           )}
-          {activas.length > 1 && (
-            <div className="revista-carousel-dots" role="tablist">
-              {activas.map((r, i) => (
-                <button
-                  key={r.id}
-                  type="button"
-                  role="tab"
-                  aria-selected={i === safeIdx}
-                  aria-label={`Edición ${r.numero_edicion}`}
-                  className={`revista-carousel-dot${
-                    i === safeIdx ? ' revista-carousel-dot--active' : ''
-                  }`}
-                  onClick={() => setCarouselIdx(i)}
-                />
-              ))}
-            </div>
-          )}
-          {addError && <p className="cart-warning">{addError}</p>}
         </div>
       )}
 

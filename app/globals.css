@@ -2422,82 +2422,138 @@ footer p {
 }
 
 /* ============================================================================
- * Carrusel de revistas en la home pública
+ * Estante 3D de revistas (home pública)
+ *
+ * Una sola Canvas R3F que dibuja TODAS las ediciones activas paralelas.
+ * UI debajo (título + descripción + comprar) refleja la edición bajo el cursor.
  * ============================================================================ */
-.revista-carousel {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-md);
+.revistas-shelf-wrapper {
   width: 100%;
-  position: relative;
-}
-.revista-carousel .revista-item {
-  flex: 0 1 auto;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 clamp(1rem, 4vw, 3rem);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: 1rem;
+  position: relative;
 }
-.revista-carousel-titulo {
-  color: var(--color-light);
-  font: var(--font-size-lg) var(--font-family);
-  margin: var(--spacing-sm) 0 0;
-  text-align: center;
-}
-.revista-carousel-arrow {
+
+.revistas-shelf-canvas {
+  width: 100%;
+  height: min(60vh, 32rem);
+  min-height: 380px;
+  cursor: default;
+  touch-action: none;
   background: transparent;
-  border: 2px solid rgba(255, 255, 255, 0.4);
-  color: var(--color-light);
-  width: 48px;
-  height: 48px;
-  border-radius: var(--radius-full);
+  position: relative;
+}
+.revistas-shelf-canvas:hover {
   cursor: pointer;
-  font-size: var(--font-size-lg);
+}
+.revistas-shelf-fallback {
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  transition: all 0.2s ease;
 }
-.revista-carousel-arrow:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: var(--color-light);
-}
-.revista-carousel-arrow:active {
-  transform: scale(0.92);
-}
-.revista-carousel-dots {
-  display: flex;
-  justify-content: center;
-  gap: var(--spacing-sm);
-  margin-top: var(--spacing-lg);
-}
-.revista-carousel-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: var(--radius-full);
-  background: rgba(255, 255, 255, 0.35);
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  transition: background 0.2s ease, transform 0.2s ease;
-}
-.revista-carousel-dot:hover {
-  background: rgba(255, 255, 255, 0.6);
-}
-.revista-carousel-dot--active {
-  background: var(--color-light);
-  transform: scale(1.2);
+.revistas-shelf-fallback::after {
+  content: 'Cargando revistas…';
+  color: var(--color-light);
+  opacity: 0.6;
+  font-style: italic;
 }
 
-@media (max-width: 640px) {
-  .revista-carousel-arrow {
-    width: 40px;
-    height: 40px;
-    font-size: var(--font-size-base);
+/* "Platform": gradient radial sutil detrás de la fila para que los libros
+   no floten contra el rojo plano. */
+.revistas-shelf-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(90%, 50rem);
+  height: 55%;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(
+      ellipse 60% 70% at 50% 45%,
+      rgba(255, 255, 255, 0.10) 0%,
+      rgba(255, 255, 255, 0.04) 35%,
+      transparent 70%
+    );
+  filter: blur(10px);
+}
+
+.revistas-shelf-info {
+  text-align: center;
+  max-width: 32rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  position: relative;
+  z-index: 1;
+  transition: opacity 240ms ease;
+}
+
+.revistas-shelf-titulo {
+  color: var(--color-light);
+  font-family: var(--font-family);
+  font-size: clamp(1.2rem, 2.5vw, 1.75rem);
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.revistas-shelf-desc {
+  color: var(--color-light);
+  opacity: 0.75;
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+  margin: 0;
+  max-width: 28rem;
+}
+
+.revistas-shelf-wrapper .revista-add-btn--3d {
+  position: static;
+  transform: none;
+  opacity: 1;
+  background-color: var(--color-light);
+  color: var(--color-primary);
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-weight: 700;
+  font-size: var(--font-size-base);
+  transition: background-color 180ms ease, transform 180ms ease;
+  margin-top: 0.4rem;
+}
+.revistas-shelf-wrapper .revista-add-btn--3d:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.88);
+  transform: translateY(-2px);
+}
+.revistas-shelf-wrapper .revista-add-btn--3d:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.revistas-shelf-empty {
+  min-height: 30vh;
+  display: grid;
+  place-items: center;
+  color: var(--color-light);
+  font-size: var(--font-size-lg);
+  opacity: 0.85;
+}
+
+@media (max-width: 700px) {
+  .revistas-shelf-canvas {
+    height: min(55vh, 26rem);
+    min-height: 320px;
   }
-  .revista-carousel {
-    gap: var(--spacing-xs);
+  .revistas-shelf-wrapper::before {
+    width: 95%;
   }
 }
