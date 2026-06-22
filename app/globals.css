@@ -2450,11 +2450,16 @@ footer p {
   width: 100%;
   height: min(60vh, 32rem);
   min-height: 380px;
-  cursor: default;
+  /* El canvas siempre es interactivo (hover → click → drag). El cursor
+     pointer sobre todo el canvas refuerza el affordance "clickeable". */
+  cursor: pointer;
   touch-action: none;
   background: transparent;
   position: relative;
   z-index: 70;
+}
+.revistas-shelf-canvas:active {
+  cursor: grabbing;
 }
 
 /* Wrapper-level visual platform under the shelf */
@@ -2488,6 +2493,47 @@ footer p {
   color: var(--color-light);
   opacity: 0.6;
   font-style: italic;
+}
+
+/* Botón cerrar prominente cuando hay revista seleccionada. */
+.revistas-close-btn {
+  position: fixed;
+  top: 1.25rem;
+  right: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--color-primary);
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: var(--font-family);
+  font-weight: 700;
+  font-size: 1rem;
+  z-index: 80;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  animation: revistas-dim-in 240ms ease-out;
+  transition: transform 180ms ease, background 180ms ease;
+}
+.revistas-close-btn:hover {
+  background: var(--color-light);
+  transform: scale(1.05);
+}
+.revistas-close-btn-label {
+  font-size: 0.95rem;
+}
+@media (max-width: 700px) {
+  .revistas-close-btn-label {
+    display: none;
+  }
+  .revistas-close-btn {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    justify-content: center;
+  }
 }
 
 /* Dim overlay del resto de la página cuando hay una revista seleccionada.

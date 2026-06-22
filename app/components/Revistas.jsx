@@ -125,8 +125,8 @@ function Revistas() {
         <h1>{secciones.revistas.titulo}</h1>
         <p className="seccion-descripcion">
           {selected
-            ? 'Tocá afuera o ESC para volver al catálogo.'
-            : 'Tocá una revista para ver detalle.'}
+            ? ''
+            : 'Tocá una revista para ver el detalle. Arrastrá para girarla.'}
         </p>
         {editMode && (
           <button
@@ -204,6 +204,19 @@ function Revistas() {
               onClick={() => setSelectedId(null)}
               aria-hidden="true"
             />
+          )}
+
+          {/* Botón cerrar prominente cuando hay selected. */}
+          {selected && (
+            <button
+              type="button"
+              className="revistas-close-btn"
+              onClick={() => setSelectedId(null)}
+              aria-label="Cerrar y volver al catálogo"
+            >
+              <span aria-hidden="true">✕</span>
+              <span className="revistas-close-btn-label">Volver</span>
+            </button>
           )}
 
           <RevistasShelf3D

@@ -71,10 +71,12 @@ function Book({
   const dragState = useRef({
     down: false,
     startX: 0,
+    startY: 0,
     moved: false,
     pointerId: null,
   });
-  const extraRotY = useRef(0); // rotación extra del drag, se snap-backea al soltar
+  const extraRotY = useRef(0); // rotación horizontal extra del drag (yaw)
+  const extraRotX = useRef(0); // rotación vertical extra del drag (pitch)
 
   const [portada, contraTex, lomoTex, pagH, pagV] = useLoader(TextureLoader, [
     portadaPath || DEFAULT_PORTADA,
@@ -94,12 +96,19 @@ function Book({
   }, [portada, contraTex, lomoTex, pagH, pagV]);
 
   // Target del estado actual.
+  // - Rest: rotation.y = -0.15 (lomo apenas insinuado, no de frente plano).
+  // - Hover: rotation.y = 0 (gira a portada de frente), Z+ más y scale más
+  //   notable para que se "lea" como clickable.
+  // - Selected: centrado, sin escalar fuerte (sino se corta del canvas).
   const target = useMemo(() => {
     if (isSelected) {
+      // No escalamos demasiado para evitar que al girar (drag) se corte por
+      // el frustum de la cámara. El "agrandado" se siente por el centro + Z+.
       return {
-        position: [0, 0, 0.18],
+        position: [0, 0, 0.06],
         rotationY: 0,
-        scale: 1.25,
+        rotationX: 0,
+        scale: 1.0,
         opacity: 1,
       };
     }
@@ -108,21 +117,24 @@ function Book({
       return {
         position: basePosition,
         rotationY: 0,
+        rotationX: 0,
         scale: 0.01,
         opacity: 0,
       };
     }
     if (isHovered) {
       return {
-        position: [basePosition[0], basePosition[1], basePosition[2] + 0.05],
+        position: [basePosition[0], basePosition[1], basePosition[2] + 0.09],
         rotationY: 0,
-        scale: 1.04,
+        rotationX: 0,
+        scale: 1.07,
         opacity: 1,
       };
     }
     return {
       position: basePosition,
-      rotationY: 0,
+      rotationY: -0.15,
+      rotationX: 0,
       scale: 1,
       opacity: 1,
     };
@@ -130,24 +142,30 @@ function Book({
 
   useFrame((state, delta) => {
     if (!ref.current) return;
-    // Damping suave: ~1.2 segundos para cubrir 99% del rango. Si delta varía
-    // (FPS bajo), el resultado se mantiene consistente.
-    const damp = 1 - Math.pow(0.05, delta * 1.6);
+    // Damping: un poco más rápido que la versión anterior pero todavía cinemático.
+    const damp = 1 - Math.pow(0.05, delta * 2.2);
 
     ref.current.position.x = MathUtils.lerp(ref.current.position.x, target.position[0], damp);
     ref.current.position.y = MathUtils.lerp(ref.current.position.y, target.position[1], damp);
     ref.current.position.z = MathUtils.lerp(ref.current.position.z, target.position[2], damp);
 
-    // Rotación: base (target) + extra del drag.
+    // Rotación: base (target) + extra del drag, en ambos ejes.
     const targetRotY = target.rotationY + extraRotY.current;
+    const targetRotX = target.rotationX + extraRotX.current;
     ref.current.rotation.y = MathUtils.lerp(ref.current.rotation.y, targetRotY, damp);
+    ref.current.rotation.x = MathUtils.lerp(ref.current.rotation.x, targetRotX, damp);
 
     const s = MathUtils.lerp(ref.current.scale.x, target.scale, damp);
     ref.current.scale.set(s, s, s);
 
-    // Snap-back del drag cuando soltás.
-    if (!dragState.current.down && Math.abs(extraRotY.current) > 0.0005) {
-      extraRotY.current = MathUtils.lerp(extraRotY.current, 0, damp * 0.6);
+    // Snap-back del drag cuando soltás (ambos ejes).
+    if (!dragState.current.down) {
+      if (Math.abs(extraRotY.current) > 0.0005) {
+        extraRotY.current = MathUtils.lerp(extraRotY.current, 0, damp * 0.6);
+      }
+      if (Math.abs(extraRotX.current) > 0.0005) {
+        extraRotX.current = MathUtils.lerp(extraRotX.current, 0, damp * 0.6);
+      }
     }
 
     // Opacity para "esfumar" cuando hay otro seleccionado.
@@ -180,6 +198,7 @@ function Book({
     dragState.current = {
       down: true,
       startX: e.clientX,
+      startY: e.clientY,
       moved: false,
       pointerId: e.pointerId,
     };
@@ -189,8 +208,11 @@ function Book({
   const handlePointerMove = (e) => {
     if (!dragState.current.down) return;
     const dx = e.clientX - dragState.current.startX;
-    if (Math.abs(dx) > 5) dragState.current.moved = true;
+    const dy = e.clientY - dragState.current.startY;
+    if (Math.hypot(dx, dy) > 5) dragState.current.moved = true;
     extraRotY.current = dx / 250;
+    // dy positivo (cursor hacia abajo) → libro inclina hacia adelante (rotation.x positivo).
+    extraRotX.current = dy / 350;
   };
 
   const handlePointerUp = (e) => {
@@ -284,6 +306,8 @@ export default function RevistasShelf3D({
         camera={{ position: [0, 0, camZ], fov: 32 }}
         dpr={[1, 2]}
         gl={{ antialias: true, alpha: true }}
+        // Click sobre el canvas pero fuera de cualquier libro → deselecciona.
+        onPointerMissed={() => setSelectedId(null)}
       >
         <ambientLight intensity={0.35} />
         <directionalLight position={[2, 3, 2]} intensity={0.45} />
