@@ -6,6 +6,7 @@ import { RevistasProvider } from './context/RevistasProvider';
 import { VideosProvider } from './context/VideosProvider';
 import { ArticulosProvider } from './context/ArticulosProvider';
 import { IntegrantesProvider } from './context/IntegrantesProvider';
+import { EventosProvider } from './context/EventosProvider';
 import { PurchasesProvider } from './context/PurchasesProvider';
 import { CartProvider } from './context/CartProvider';
 import { SiteSettingsProvider } from './context/SiteSettingsProvider';
@@ -20,12 +21,14 @@ export default function Providers({ children }) {
             <VideosProvider>
               <ArticulosProvider>
                 <IntegrantesProvider>
-                  <PurchasesProvider>
-                    <CartProvider>
-                      <PageviewTracker />
-                      {children}
-                    </CartProvider>
-                  </PurchasesProvider>
+                  <EventosProvider>
+                    <PurchasesProvider>
+                      <CartProvider>
+                        <PageviewTracker />
+                        {children}
+                      </CartProvider>
+                    </PurchasesProvider>
+                  </EventosProvider>
                 </IntegrantesProvider>
               </ArticulosProvider>
             </VideosProvider>

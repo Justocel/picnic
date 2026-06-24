@@ -27,53 +27,9 @@ export const welcome = {
 
 // ARTICULOS — ahora viven en la tabla articulos (Supabase). Ver ArticulosProvider.
 
-// EVENTOS — mocks visuales para mostrar la sección. Futura iteración:
-// CRUD inline contra Supabase (ya está la base con los providers para
-// el resto del contenido).
-export const eventos = [
-  {
-    id: 1,
-    nombre: 'Evento Próximo 1',
-    fecha: '2026-08-05',
-    image: '/Eventos/1.png',
-    estado: 'futuro',
-  },
-  {
-    id: 2,
-    nombre: 'Evento Próximo 2',
-    fecha: '2026-08-10',
-    image: '/Eventos/2.png',
-    estado: 'futuro',
-  },
-  {
-    id: 3,
-    nombre: 'Evento Próximo 3',
-    fecha: '2026-08-15',
-    image: '/Eventos/3.png',
-    estado: 'futuro',
-  },
-  {
-    id: 4,
-    nombre: 'Evento Pasado 1',
-    fecha: '2026-03-30',
-    image: '/Eventos/4.png',
-    estado: 'pasado',
-  },
-  {
-    id: 5,
-    nombre: 'Evento Pasado 2',
-    fecha: '2026-03-25',
-    image: '/Eventos/5.png',
-    estado: 'pasado',
-  },
-  {
-    id: 6,
-    nombre: 'Evento Pasado 3',
-    fecha: '2026-03-20',
-    image: '/Eventos/6.png',
-    estado: 'pasado',
-  },
-];
+// EVENTOS — ahora viven en la tabla eventos (Supabase). Ver EventosProvider.
+// La migración 0008 sembró 6 mocks iniciales con imágenes /Eventos/1-6.png
+// para que la sección no quede vacía al desplegar.
 
 // VIDEOS — ahora viven en la tabla videos (Supabase). Ver VideosProvider.
 
