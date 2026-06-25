@@ -3034,7 +3034,14 @@ footer p {
  * ============================================================================ */
 .editable-text--readable {
   position: relative;
-  display: inline-block;
+  /* block (no inline-block) para que múltiples EditableText en el mismo
+     padre se stackeen verticalmente (sino el título, la descripción y el
+     botón "+ Nuevo X" se montaban en una sola línea en edit mode).
+     width: fit-content mantiene el wrapper apretado al texto, así el
+     botón ✎ con position:absolute right:-28px queda pegado al final del
+     texto y no en el borde derecho del contenedor. */
+  display: block;
+  width: fit-content;
   max-width: 100%;
 }
 .editable-text--readable > :first-child {
