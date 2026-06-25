@@ -610,6 +610,7 @@ h2 {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  align-items: stretch;
   gap: var(--spacing-lg);
   padding: var(--spacing-lg);
 }
@@ -624,7 +625,12 @@ h2 {
   padding: var(--spacing-md);
   border-radius: var(--radius-md);
   width: 320px;
-  display: inline-block;
+  /* display flex + height 100% para que cuando esté dentro de video-wrapper
+     se estire al alto de la fila (fix de alturas desparejas entre cards
+     cuando los títulos tienen distinto largo). */
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   transition: transform var(--transition-normal) ease-out;
 }
 
@@ -698,6 +704,16 @@ h2 {
   margin: var(--spacing-md) 0 0;
   font-weight: bold;
   font-size: var(--font-size-sm);
+  /* Limitamos a 2 líneas + line-height fijo: garantiza misma altura del
+     título en todas las cards, sin importar largo del título original.
+     Lo que excede aparece con elipsis. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.35;
+  min-height: calc(1.35em * 2);
 }
 
 /* ===================================
@@ -1931,9 +1947,16 @@ footer p {
   gap: 8px;
   width: 320px;
   max-width: 100%;
+  /* align-self: stretch viene del align-items: stretch del .videos-grid;
+     lo declaramos explícito para claridad. */
+  align-self: stretch;
 }
 .video-wrapper .video-item {
   width: 100%;
+  /* Llena la altura del wrapper (que a su vez está estirado al alto de
+     fila por el flex padre). Sin esto el item se quedaba con su alto
+     "natural" y las cards de la misma fila quedaban desparejas. */
+  flex: 1;
 }
 .video-wrapper--hidden .video-item {
   opacity: 0.5;
