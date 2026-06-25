@@ -15,14 +15,14 @@ export const COLORS = {
 // BIENVENIDA
 export const welcome = {
   paragraphs: [
-    'Picnic es una revista. Cada número es una mesa puesta para artistas que el algoritmo todavía no descubrió: el taller antes que el booth, el nombre antes que el movimiento, el oficio antes que el hype.',
-    'Si estás leyendo esto seguramente ya sabés dónde estás. Este es nuestro primer número y te agradecemos profundamente que lo estés leyendo. Picnic, la revista del arte fino, tiene como razón de ser la creación de contenidos periodísticos sobre arte en general. Nos gusta el cine, la música, el teatro, la pintura, la escultura, la literatura, la poesía. Todo tipo de arte.',
-    '¿Por qué arte fino? Consideramos que toda expresión artística, si atraviesa un sentimiento, tiene una razón de ser. El arte fino es un tipo de arte creado principalmente con propósitos estéticos, intelectuales o emocionales, en contraposición a las artes decorativas o utilitarias.',
-    'Por eso hacemos periodismo de arte fino. Nos emociona y por eso ponemos el cuerpo: vamos a lugares donde se respira arte fino, hablamos con los artistas, les hacemos toda clase de preguntas.',
-    'Creemos que también es otra forma de popularizar el arte y democratizarlo. Si nadie graba esto, ¿realmente existió? Hay artistas que nos gustan tanto que queremos compartirlos con todo el mundo. Esa es la base. Sentate. Hojeá despacio. No hay apuro.',
+    'Si estás leyendo esto seguramente ya sabés dónde estás. ¡Bienvenidx a PICNIC! Este es nuestro primer número y te agradecemos profundamente que lo estés leyendo. También si estás acá, en un principio, hay una gran probabilidad de que compartamos bastantes gustos. Eso es también lo que hacemos.',
+    'Recapitulemos: PICNIC, la revista del arte fino, tiene como razón de ser la creación de contenidos periodísticos sobre arte en general (¡no dejamos afuera a nadie!). Nos gusta el cine, la música, el teatro, la pintura, la escultura, la literatura, la poesía. Todo tipo de arte.',
+    '¿Por qué arte fino? Consideramos que toda expresión artística, si atraviesa un sentimiento, tiene una razón de ser. Si hacés una búsqueda rápida en Google sobre qué es el arte fino, seguramente te salga que es un tipo de arte visual creado principalmente con propósitos estéticos, intelectuales o emocionales, en contraposición a las artes decorativas o utilitarias.',
+    'Por eso mismo es que consideramos que hacemos periodismo de arte fino. El arte fino nos emociona y por eso es que todos los días elegimos poner el cuerpo a su disposición: ir a lugares donde se respire arte fino y nos rodee por completo y, justamente por eso, es que nos pareció incluso más interesante también hablar con los artistas y hacerles toda clase de preguntas.',
+    'Creemos que también es otra forma de popularizar el arte y democratizarlo. Hay momentos en que pensamos: "si nadie graba esto, ¿realmente existió?" Consideramos que hay artistas que nos gustan tanto que queremos compartirlos con todo el mundo. Esa será la base de siempre. Y, por último, en la base de la revista también estás vos, ¡fiel lectorx! Ahora vos también tenés la potestad de contarle a todo el mundo que hay un lugar en donde hablan de lo que te gusta.',
   ],
-  pullQuote: 'No somos un feed. Cada número tiene tapa, índice y final.',
-  pullQuoteAfter: 1,
+  pullQuote: null,
+  pullQuoteAfter: null,
 };
 
 // ARTICULOS — ahora viven en la tabla articulos (Supabase). Ver ArticulosProvider.
