@@ -40,7 +40,7 @@ Una vez logueado como editor:
    - **Artículos**: agregar (botón "+"), editar (markdown + cover image), reordenar (↑↓), ocultar/mostrar, borrar.
    - **Integrantes**: CRUD + foto.
    - **Videos**: CRUD manual + sincronizados desde YouTube. Asignar sección/orden/visibilidad.
-   - **Eventos**: CRUD con fecha (clasifica futuro/pasado solo).
+   - **Eventos**: CRUD con fecha, flyer y descripción. Clasifica futuro/pasado solo.
    - **Revistas**: agregar/editar (título, descripción, precio, color de contraportada). Subir portada, contraportada, **PDF** con signed upload (storage policy chequea editor role).
    - **Footer**: editar redes sociales (Instagram, YouTube, etc.) y email de contacto inline.
 3. **Dashboard de analytics**: `/admin/analytics` — pageviews, compras, opens de PDF, logins/signups, top páginas y barras diarias.
@@ -68,11 +68,11 @@ Una vez logueado como editor:
 
 ### Frontend público
 - **Home single-page** con scroll por secciones y subheader sticky con anchors.
-- **Subheader inteligente**: oculta links de secciones que no tienen contenido (eventos vacíos, etc.).
+- **Subheader inteligente**: en la home oculta links de secciones que no se montaron en el DOM (eventos sin items visibles, etc). Fuera de la home muestra todos y al click navega a `/#seccion`.
 - **Hero** con video de fondo (autoplay muted loop) y overlay.
 - **Welcome editorial** con texto editable inline.
 - **Artículos**: grid horizontal con scroll, cards con cover, autor, fecha. Link a `/articulos/[slug]` que renderiza markdown.
-- **Eventos**: separados automáticamente en "próximos" y "pasados" según `fecha`. Si una de las dos listas queda vacía, se oculta del subheader.
+- **Eventos**: backed por tabla Supabase con CRUD inline en edit mode. Se clasifican automáticamente en "próximos" y "pasados" según `fecha`. Si la sección entera queda sin eventos visibles, desaparece de la home.
 - **Picnic en la escena**: videos del canal de YouTube sincronizados automáticamente por cron diario. Editores pueden ocultar/asignar sección/reordenar; el cron preserva esas decisiones.
 - **VideoItem**: thumbnail `maxresdefault` → `mqdefault` con fallback en cadena, decodifica entidades HTML en títulos (YouTube los devuelve escapados).
 - **Conseguí la revista**: escena 3D con Three.js. Cada revista es un libro con portada/contraportada/lomo. Drag para rotar, click para enfocar (dim de fondo + panel lateral con info y precio). Scroll smooth hacia la revista enfocada. ESC o click afuera vuelve. Drag sensible al touch (divisores diferentes según `pointerType`).
@@ -113,7 +113,7 @@ Una vez logueado como editor:
 - **Artículos**: full CRUD + reordenamiento + visibilidad + cover image (storage `imagenes-publicas`).
 - **Integrantes**: full CRUD + reordenamiento + foto.
 - **Videos**: full CRUD manual + opción de sync desde YouTube. Asignar sección, orden, visibilidad.
-- **Eventos**: full CRUD con fecha.
+- **Eventos**: full CRUD con fecha (date picker), flyer (upload al bucket público), descripción opcional. La clasificación próximos/pasados es automática según la fecha. Toggle de visibilidad por evento.
 - **Revistas**: CRUD + upload de portada/contraportada (imagen) + upload de PDF (signed upload, policy permite a editores).
 - **Footer**: redes sociales + email editables inline.
 - **Sistema de invitaciones** (`/admin/editores`):
@@ -255,7 +255,8 @@ supabase/migrations/             # SQL idempotente (orden numérico)
   0004_revista_contraportada_color.sql
   0005_editor_invitations.sql
   0006_site_settings.sql
-  0007_invitation_consume_order.sql
+  0007_fix_handle_new_user_order.sql
+  0008_eventos.sql
 supabase/tests/
   rls_smoke_tests.sql            # Tests adversariales de RLS
 
@@ -309,7 +310,8 @@ En el SQL Editor de Supabase, **en orden y de a una por vez**:
 5. `supabase/migrations/0004_revista_contraportada_color.sql`
 6. `supabase/migrations/0005_editor_invitations.sql`
 7. `supabase/migrations/0006_site_settings.sql`
-8. `supabase/migrations/0007_invitation_consume_order.sql`
+8. `supabase/migrations/0007_fix_handle_new_user_order.sql`
+9. `supabase/migrations/0008_eventos.sql`
 
 Todas son idempotentes — se pueden re-ejecutar sin romper.
 

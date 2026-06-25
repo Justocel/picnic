@@ -475,24 +475,28 @@ h2 {
 
 .eventos-container {
   display: flex;
-  justify-content: center;
-  overflow-x: auto;
-  gap: var(--spacing-md);
-  padding: var(--spacing-md);
-  scroll-snap-type: x mandatory;
-  max-width: 100%;
-}
-
-.eventos-container--grid {
   flex-wrap: wrap;
   justify-content: center;
-  overflow-x: visible;
-  scroll-snap-type: none;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-md);
+  max-width: 100%;
+}
+/* Alias legacy: ambas listas (próximos/pasados) usan el mismo grid. */
+.eventos-container--grid { }
+
+.evento-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 220px;
+  max-width: 100%;
+  gap: 8px;
+}
+.evento-wrapper--hidden .evento {
+  opacity: 0.5;
+  filter: grayscale(0.4);
 }
 
 .evento {
-  flex: 0 0 180px;
-  scroll-snap-align: start;
   color: var(--color-dark);
   font: var(--font-size-sm) var(--font-family);
   text-align: center;
@@ -501,6 +505,8 @@ h2 {
   padding: var(--spacing-md);
   border-radius: var(--radius-md);
   transition: transform var(--transition-fast);
+  display: flex;
+  flex-direction: column;
 }
 
 .evento:hover {
@@ -516,6 +522,14 @@ h2 {
   border-radius: var(--radius-sm);
   display: block;
 }
+.flyer--empty {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.08),
+    rgba(255, 255, 255, 0.02)
+  );
+  border: 1px dashed rgba(255, 255, 255, 0.25);
+}
 
 .evento-nombre {
   font: var(--font-size-lg) var(--font-family);
@@ -527,6 +541,28 @@ h2 {
 .evento-fecha {
   color: var(--color-light);
   margin: var(--spacing-xs) 0 0;
+  opacity: 0.85;
+}
+
+.evento-desc {
+  color: var(--color-light);
+  font-size: var(--font-size-sm);
+  margin: var(--spacing-sm) 0 0;
+  opacity: 0.8;
+  line-height: 1.4;
+}
+
+@media (max-width: 700px) {
+  .evento-wrapper {
+    flex: 0 0 calc(50% - var(--spacing-md));
+    max-width: calc(50% - var(--spacing-md));
+  }
+}
+@media (max-width: 420px) {
+  .evento-wrapper {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
 }
 
 .eventos-empty {

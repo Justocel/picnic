@@ -135,7 +135,7 @@ function Events() {
                 : ''}
             </p>
           ) : (
-            <div className="eventos-container eventos-container--grid">
+            <div className="eventos-container">
               {futuro.map(renderEvento)}
             </div>
           )}
@@ -169,7 +169,9 @@ function Events() {
                 : ''}
             </p>
           ) : (
-            <div className="eventos-container">{pasado.map(renderEvento)}</div>
+            <div className="eventos-container">
+              {pasado.map(renderEvento)}
+            </div>
           )}
         </section>
       )}

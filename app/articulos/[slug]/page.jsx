@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 
@@ -41,10 +42,14 @@ export default async function ArticuloPage({ params }) {
 
       <article className="articulo-detalle">
         {articulo.imagen_path && (
-          <img
+          <Image
             src={articulo.imagen_path}
             alt={articulo.titulo}
             className="articulo-detalle-image"
+            width={1200}
+            height={800}
+            sizes="(max-width: 700px) 100vw, 900px"
+            priority
           />
         )}
         <div className="articulo-detalle-contenido">
