@@ -3039,10 +3039,16 @@ footer p {
      botón "+ Nuevo X" se montaban en una sola línea en edit mode).
      width: fit-content mantiene el wrapper apretado al texto, así el
      botón ✎ con position:absolute right:-28px queda pegado al final del
-     texto y no en el borde derecho del contenedor. */
+     texto y no en el borde derecho del contenedor.
+     margin-inline: auto centra el wrapper bajo el text-align:center del
+     .seccion-placeholder padre (un block ignora text-align del parent,
+     hace falta margin auto para alinear). En contextos left-aligned como
+     .bienvenida-content (Welcome) no rompe nada: cuando el texto es
+     largo, fit-content llega al max-width y queda ocupando todo el ancho. */
   display: block;
   width: fit-content;
   max-width: 100%;
+  margin-inline: auto;
 }
 .editable-text--readable > :first-child {
   /* el contenido editado renderiza su tag tal cual */
