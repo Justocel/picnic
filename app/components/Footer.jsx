@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { footer, navLinks } from '../data/data';
 import { useEditMode } from '../context/EditModeProvider';
 import { useSiteSettings } from '../context/SiteSettingsProvider';
+import { safeHref } from '../utils/utils';
 import EditableText from './EditableText';
 
 /**
@@ -40,24 +41,6 @@ function Footer() {
       return;
     }
     setEditing(null);
-  };
-
-  // Whitelist de protocolos para href. Sin esto, un editor (o cuenta
-  // comprometida via token de invitación) puede meter `javascript:fetch(...)`
-  // en una URL social y disparar XSS contra cualquier visitante.
-  const safeHref = (v, isMailto) => {
-    if (!v) return null;
-    if (isMailto) {
-      // Email simple: chequeo de @ y nada de protocolo embebido raro.
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return null;
-      return `mailto:${v}`;
-    }
-    try {
-      const url = new URL(v);
-      return ['https:', 'http:'].includes(url.protocol) ? url.toString() : null;
-    } catch {
-      return null;
-    }
   };
 
   const renderEditableLink = (key, label, isMailto) => {

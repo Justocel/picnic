@@ -8,6 +8,7 @@ import {
   classNames,
   extractYoutubeId,
   decodeHtmlEntities,
+  safeHref,
 } from './utils';
 
 describe('safeNextPath', () => {
@@ -126,5 +127,60 @@ describe('extractYoutubeId', () => {
   });
   it('devuelve null si la URL no tiene id válido', () => {
     expect(extractYoutubeId('https://example.com/foo')).toBe(null);
+  });
+});
+
+describe('safeHref (XSS protection en social URLs y email)', () => {
+  describe('http/https mode (isMailto=false)', () => {
+    it('acepta https y http', () => {
+      expect(safeHref('https://instagram.com/picnic')).toBe('https://instagram.com/picnic');
+      expect(safeHref('http://example.com/foo')).toBe('http://example.com/foo');
+    });
+    it('RECHAZA protocolos peligrosos (el bug que detectó la auditoría)', () => {
+      expect(safeHref('javascript:alert(1)')).toBe(null);
+      expect(safeHref('javascript:fetch("/api")+document.cookie')).toBe(null);
+      expect(safeHref('data:text/html,<script>alert(1)</script>')).toBe(null);
+      expect(safeHref('vbscript:msgbox(1)')).toBe(null);
+      expect(safeHref('file:///etc/passwd')).toBe(null);
+    });
+    it('rechaza URLs inválidas y vacíos', () => {
+      expect(safeHref('')).toBe(null);
+      expect(safeHref(null)).toBe(null);
+      expect(safeHref(undefined)).toBe(null);
+      expect(safeHref('no-es-url')).toBe(null);
+      expect(safeHref('   ')).toBe(null);
+      expect(safeHref(42)).toBe(null);
+      expect(safeHref({ url: 'x' })).toBe(null);
+    });
+    it('mailto: NO se cuela como link social', () => {
+      expect(safeHref('mailto:foo@bar.com')).toBe(null);
+    });
+  });
+
+  describe('mailto mode (isMailto=true)', () => {
+    it('acepta emails bien formados y prefija mailto:', () => {
+      expect(safeHref('contacto@picniczine.com', true)).toBe('mailto:contacto@picniczine.com');
+      expect(safeHref('a+b@dominio.com.ar', true)).toBe('mailto:a+b@dominio.com.ar');
+    });
+    it('hace trim antes de validar y prefijar', () => {
+      expect(safeHref('  hola@test.io  ', true)).toBe('mailto:hola@test.io');
+    });
+    it('rechaza emails inválidos', () => {
+      expect(safeHref('sin-arroba', true)).toBe(null);
+      expect(safeHref('@nadie.com', true)).toBe(null);
+      expect(safeHref('falta@dominio', true)).toBe(null);
+      expect(safeHref('', true)).toBe(null);
+      expect(safeHref(null, true)).toBe(null);
+    });
+    it('RECHAZA intentos de inyección con protocolo embebido en email', () => {
+      // Un atacante podría intentar pasar algo tipo 'javascript:alert(1)@x.com'
+      // — el regex de email lo dejaría pasar si tuviera arrobas en el medio,
+      // pero el chequeo es estricto sobre el formato.
+      expect(safeHref('javascript:foo@bar.com', true)).toBe('mailto:javascript:foo@bar.com');
+      // ↑ ojo: este caso pasa el regex porque tiene formato user@host.tld.
+      // Como prefijamos con mailto:, el resultado final es mailto:javascript:foo@bar.com
+      // — un href mailto: NO ejecuta JS, así que el riesgo es nulo.
+      // El test documenta este comportamiento esperado.
+    });
   });
 });

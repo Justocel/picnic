@@ -67,6 +67,30 @@ export const isValidEmail = (email) => {
 };
 
 /**
+ * Sanitiza href de un link editable (footer social URLs, contacto email).
+ * Sin esto, un editor (o cuenta comprometida vía token de invitación) puede
+ * meter `javascript:fetch(...)` o `data:text/html,...` y robar sesión de
+ * cualquier visitante. Whitelist estricta:
+ *   - isMailto=true: solo emails con formato válido → mailto:<email>
+ *   - isMailto=false: solo http: / https:
+ * Devuelve string seguro para usar como href, o null si no pasa.
+ */
+export const safeHref = (v, isMailto = false) => {
+  if (!v || typeof v !== 'string') return null;
+  if (isMailto) {
+    const trimmed = v.trim();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) return null;
+    return `mailto:${trimmed}`;
+  }
+  try {
+    const url = new URL(v);
+    return ['https:', 'http:'].includes(url.protocol) ? url.toString() : null;
+  } catch {
+    return null;
+  }
+};
+
+/**
  * Decodifica las entidades HTML más comunes. YouTube devuelve títulos con
  * `&quot;`, `&amp;`, `&#39;` literales — React no los decodifica al
  * renderizar, así que los limpiamos antes (al guardar en DB o al pintar).
