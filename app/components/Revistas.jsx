@@ -163,7 +163,7 @@ function Revistas() {
         <EditableText
           settingKey="seccion_revistas_titulo"
           fallback={secciones.revistas.titulo}
-          as="h1"
+          as="h2"
           maxLength={80}
         />
         <p className="seccion-descripcion">

@@ -108,7 +108,7 @@ function Events() {
             <EditableText
               settingKey="seccion_eventos_proximos_titulo"
               fallback={secciones.eventosProximos.titulo}
-              as="h1"
+              as="h2"
               maxLength={80}
             />
             <EditableText
@@ -151,7 +151,7 @@ function Events() {
             <EditableText
               settingKey="seccion_eventos_pasados_titulo"
               fallback={secciones.eventosPasados.titulo}
-              as="h1"
+              as="h2"
               maxLength={80}
             />
             <EditableText

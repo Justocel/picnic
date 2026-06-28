@@ -256,10 +256,11 @@ h2 {
 
 /* (Transición de sombra entre secciones removida por feedback del usuario.) */
 
-.seccion-placeholder h2 {
-  margin-top: 0;
-}
-
+/* Títulos de sección: ahora son h2 (jerarquía correcta — h1 solo lo
+   emite Header). Mantenemos las reglas h1 con los mismos valores para
+   no romper páginas individuales (admin, articulos detalle) que usan
+   h1 como title de página. */
+.seccion-placeholder h2,
 .seccion-placeholder h1 {
   color: var(--color-light);
   font: var(--font-size-2xl) var(--font-family);
@@ -522,7 +523,11 @@ h2 {
   border-radius: var(--radius-sm);
   display: block;
 }
-.flyer--empty {
+.flyer--empty,
+.articulo-image--empty,
+.integrante-img--empty,
+.cart-item-img--empty,
+.mis-revistas-cover--empty {
   background: linear-gradient(
     135deg,
     rgba(255, 255, 255, 0.08),
@@ -2953,7 +2958,8 @@ footer p {
   .seccion-placeholder {
     padding: var(--spacing-2xl) var(--spacing-md) var(--spacing-xl);
   }
-  .seccion-placeholder h1 {
+  .seccion-placeholder h1,
+  .seccion-placeholder h2 {
     font-size: 1.6em;
   }
 

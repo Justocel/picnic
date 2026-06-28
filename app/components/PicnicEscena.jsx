@@ -139,7 +139,7 @@ function PicnicEscena() {
         <EditableText
           settingKey="seccion_picnic_escena_titulo"
           fallback={secciones.picnicEscena.titulo}
-          as="h1"
+          as="h2"
           maxLength={80}
         />
         {editMode && (

@@ -45,7 +45,7 @@ function AnalyticsContent() {
     const [eventsRes, purchasesRes, usersRes] = await Promise.all([
       supabase
         .from('analytics_events')
-        .select('event_type, path, created_at, metadata, user_id')
+        .select('event_type, path, created_at, metadata, user_id, session_id')
         .gte('created_at', since)
         .order('created_at', { ascending: false })
         .limit(5000),

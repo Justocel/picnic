@@ -91,14 +91,21 @@ function CartPanel() {
       <div className="cart-items">
         {items.map((revista) => (
           <div key={revista.revista_id} className="cart-item">
-            <Image
-              src={revista.portada_path}
-              alt={`Edición ${revista.numero_edicion}`}
-              className="cart-item-img"
-              width={120}
-              height={160}
-              sizes="80px"
-            />
+            {revista.portada_path ? (
+              <Image
+                src={revista.portada_path}
+                alt={`Edición ${revista.numero_edicion}`}
+                className="cart-item-img"
+                width={120}
+                height={160}
+                sizes="80px"
+              />
+            ) : (
+              <div
+                className="cart-item-img cart-item-img--empty"
+                aria-hidden="true"
+              />
+            )}
             <div className="cart-item-info">
               <p className="cart-item-title">
                 {revista.titulo || `Edición ${revista.numero_edicion}`}

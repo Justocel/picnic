@@ -36,7 +36,14 @@ export const runtime = 'nodejs';
 
 function verifySignature(request, dataId) {
   const secret = process.env.MP_WEBHOOK_SECRET;
-  if (!secret) return true;
+  // Fail-closed en producción: si la env var no está, NO aceptamos requests
+  // como válidos (fail-open era un bypass total — atacante con un payment_id
+  // conocido podía forzar pendiente → pagada).
+  if (!secret) {
+    if (process.env.NODE_ENV === 'production') return false;
+    console.warn('[mp webhook] MP_WEBHOOK_SECRET no seteado — aceptando solo en dev');
+    return true;
+  }
   const sigHeader = request.headers.get('x-signature') || '';
   const requestId = request.headers.get('x-request-id') || '';
   const parts = Object.fromEntries(
@@ -183,15 +190,21 @@ export async function POST(request) {
     return Response.json({ ignored: true, reason: 'no_topic_or_id' });
   }
 
-  // Validar firma solo si claramente vino formato Webhooks v2: body con
-  // data.id presente. El IPN clásico a veces incluye x-signature pero NO
-  // tiene body.data.id, así que la firma generada con id="undefined" no
-  // matchea y dispara falsos 401. Para IPN confiamos en que al consultar
-  // el payment con nuestro access_token, MP nos da la verdad.
+  // Validar firma para Webhooks v2 (body con data.id presente). Firma
+  // OBLIGATORIA para este formato: si falta header x-signature o no valida,
+  // 401. Sin esto un atacante puede mandar body v2 con un payment_id real
+  // sin header y bypaseamos toda la validación.
+  // IPN clásico (body vacío, datos por query) NO tiene firma propia — la
+  // confianza viene de que para procesar el payment necesitamos consultarlo
+  // a MP con nuestro access_token; si MP devuelve algo, es real.
   const v2DataId = body?.data?.id;
-  if (v2DataId && request.headers.get('x-signature')) {
+  if (v2DataId) {
     if (!verifySignature(request, v2DataId)) {
-      console.warn('[mp webhook] firma inválida', { reqId, v2DataId });
+      console.warn('[mp webhook] firma inválida o ausente', {
+        reqId,
+        v2DataId,
+        hasSig: !!request.headers.get('x-signature'),
+      });
       return Response.json({ error: 'Firma inválida' }, { status: 401 });
     }
   }

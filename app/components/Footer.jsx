@@ -42,9 +42,27 @@ function Footer() {
     setEditing(null);
   };
 
+  // Whitelist de protocolos para href. Sin esto, un editor (o cuenta
+  // comprometida via token de invitación) puede meter `javascript:fetch(...)`
+  // en una URL social y disparar XSS contra cualquier visitante.
+  const safeHref = (v, isMailto) => {
+    if (!v) return null;
+    if (isMailto) {
+      // Email simple: chequeo de @ y nada de protocolo embebido raro.
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return null;
+      return `mailto:${v}`;
+    }
+    try {
+      const url = new URL(v);
+      return ['https:', 'http:'].includes(url.protocol) ? url.toString() : null;
+    } catch {
+      return null;
+    }
+  };
+
   const renderEditableLink = (key, label, isMailto) => {
     const value = settings[key] || '';
-    const href = isMailto && value ? `mailto:${value}` : value;
+    const href = safeHref(value, isMailto);
     if (editing === key) {
       return (
         <span className="footer-edit-row">
@@ -68,7 +86,7 @@ function Footer() {
     }
     return (
       <span className="footer-edit-row">
-        {value ? (
+        {href ? (
           <a
             href={href}
             target={isMailto ? undefined : '_blank'}
@@ -77,7 +95,9 @@ function Footer() {
             {label}
           </a>
         ) : (
-          <span className="footer-empty">{label} (no configurado)</span>
+          <span className="footer-empty">
+            {label} {value ? '(URL inválida)' : '(no configurado)'}
+          </span>
         )}
         {editMode && (
           <button

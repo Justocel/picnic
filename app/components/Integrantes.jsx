@@ -49,7 +49,7 @@ function Integrantes() {
         <EditableText
           settingKey="seccion_equipo_titulo"
           fallback={secciones.equipo.titulo}
-          as="h1"
+          as="h2"
           maxLength={80}
         />
         <EditableText
@@ -83,14 +83,21 @@ function Integrantes() {
               }`}
             >
               <div className="integrante">
-                <Image
-                  src={i.foto_path}
-                  alt={i.nombre}
-                  className="integrante-img"
-                  width={400}
-                  height={400}
-                  sizes="(max-width: 700px) 50vw, 200px"
-                />
+                {i.foto_path ? (
+                  <Image
+                    src={i.foto_path}
+                    alt={i.nombre}
+                    className="integrante-img"
+                    width={400}
+                    height={400}
+                    sizes="(max-width: 700px) 50vw, 200px"
+                  />
+                ) : (
+                  <div
+                    className="integrante-img integrante-img--empty"
+                    aria-hidden="true"
+                  />
+                )}
                 <div className="info">
                   <h3>{i.nombre}</h3>
                   {i.rol && <p className="integrante-rol">{i.rol}</p>}

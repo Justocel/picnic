@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -20,16 +20,29 @@ export default function PagoResultado({ titulo, subtitulo, mensaje, variant, pri
   const { hydrated: purchasesHydrated, reloadPurchases } = usePurchases();
   const [refreshing, setRefreshing] = useState(true);
 
+  // Los providers NO memoizan refreshCart/reloadPurchases, así que cada
+  // render produce nuevas refs y el useEffect se relanzaría infinitamente
+  // (attempts queda en 0 para siempre, el setTimeout viejo no se clarea,
+  // se acumulan tasks). Capturamos las últimas refs en refs y corremos el
+  // poll una sola vez al montar.
+  const refreshCartRef = useRef(refreshCart);
+  const reloadPurchasesRef = useRef(reloadPurchases);
+  useEffect(() => {
+    refreshCartRef.current = refreshCart;
+    reloadPurchasesRef.current = reloadPurchases;
+  });
+
   useEffect(() => {
     let cancelled = false;
     let attempts = 0;
+    let timer = null;
     const tick = async () => {
       if (cancelled) return;
-      await refreshCart();
-      await reloadPurchases();
+      await refreshCartRef.current?.();
+      await reloadPurchasesRef.current?.();
       attempts++;
       if (attempts < 5 && !cancelled) {
-        setTimeout(tick, 2000);
+        timer = setTimeout(tick, 2000);
       } else if (!cancelled) {
         setRefreshing(false);
       }
@@ -37,8 +50,9 @@ export default function PagoResultado({ titulo, subtitulo, mensaje, variant, pri
     tick();
     return () => {
       cancelled = true;
+      if (timer) clearTimeout(timer);
     };
-  }, [refreshCart, reloadPurchases]);
+  }, []);
 
   return (
     <>

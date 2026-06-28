@@ -50,7 +50,7 @@ function Articulos() {
         <EditableText
           settingKey="seccion_articulos_titulo"
           fallback={secciones.articulos.titulo}
-          as="h1"
+          as="h2"
           maxLength={80}
         />
         <EditableText
@@ -88,14 +88,21 @@ function Articulos() {
                 href={`/articulos/${articulo.slug}`}
                 className="articulo-card"
               >
-                <Image
-                  src={articulo.imagen_path}
-                  alt={articulo.titulo}
-                  className="articulo-image"
-                  width={1200}
-                  height={800}
-                  sizes="(max-width: 700px) 100vw, 600px"
-                />
+                {articulo.imagen_path ? (
+                  <Image
+                    src={articulo.imagen_path}
+                    alt={articulo.titulo}
+                    className="articulo-image"
+                    width={1200}
+                    height={800}
+                    sizes="(max-width: 700px) 100vw, 600px"
+                  />
+                ) : (
+                  <div
+                    className="articulo-image articulo-image--empty"
+                    aria-hidden="true"
+                  />
+                )}
                 <div className="articulo-overlay">
                   {articulo.categoria && (
                     <span className="articulo-categoria">
