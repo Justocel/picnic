@@ -50,6 +50,7 @@ const ALLOWED_KEYS = new Set([
   'seccion_eventos_pasados_descripcion',
   'seccion_picnic_escena_titulo',
   'seccion_revistas_titulo',
+  'seccion_revistas_descripcion',
   'seccion_equipo_titulo',
   'seccion_equipo_descripcion',
 ]);

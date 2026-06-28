@@ -166,11 +166,18 @@ function Revistas() {
           as="h2"
           maxLength={80}
         />
-        <p className="seccion-descripcion">
-          {selected
-            ? ''
-            : 'Tocá una revista para ver el detalle. Arrastrá para girarla.'}
-        </p>
+        {/* Cuando hay una revista enfocada, ocultamos la descripción para
+            no competir con el panel de info. En edit mode se muestra
+            siempre para que el editor pueda modificar el texto. */}
+        {(!selected || editMode) && (
+          <EditableText
+            settingKey="seccion_revistas_descripcion"
+            fallback="Tocá una revista para ver el detalle. Arrastrá para girarla."
+            as="p"
+            className="seccion-descripcion"
+            maxLength={300}
+          />
+        )}
         {editMode && (
           <button
             className="edit-add-btn"
