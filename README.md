@@ -402,6 +402,7 @@ Invitee → /registrarme?invite=<token>
 | `/api/webhook/mp` | POST | HMAC (`MP_WEBHOOK_SECRET`) | Recibe notificación de pago, confirma orden |
 | `/api/admin/reconfirm` | POST | Bearer + role admin | Re-confirma manualmente una purchase (recovery) |
 | `/api/cron/sync-youtube` | GET | Bearer (`CRON_SECRET`) | Sincroniza últimos videos del canal |
+| `/api/cron/keep-alive` | GET | Bearer (`CRON_SECRET`) | Query trivial diaria para que Supabase free no pause el proyecto (umbral 7 días) |
 
 ---
 
@@ -411,7 +412,10 @@ Conectado a Vercel desde `main`. Cada push → deploy automático. PRs generan p
 
 **Cron** en `vercel.json`:
 ```json
-{ "crons": [{ "path": "/api/cron/sync-youtube", "schedule": "0 6 * * *" }] }
+{ "crons": [
+  { "path": "/api/cron/sync-youtube", "schedule": "0 6 * * *" },
+  { "path": "/api/cron/keep-alive",   "schedule": "0 12 * * *" }
+] }
 ```
 
 Vercel inyecta `Authorization: Bearer ${CRON_SECRET}` automáticamente.
