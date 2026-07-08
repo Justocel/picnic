@@ -305,12 +305,19 @@ export default function RevistasShelf3D({
         // Click sobre el canvas pero fuera de cualquier libro → deselecciona.
         onPointerMissed={() => setSelectedId(null)}
       >
-        <ambientLight intensity={0.35} />
-        <directionalLight position={[2, 3, 2]} intensity={0.45} />
-        <directionalLight position={[-2, 1, -1]} intensity={0.2} />
+        {/* Iluminación de 3 puntos para dar dimensión y tacto premium a los
+            libros (antes era plana → se veían "pegados" al fondo):
+            - Key cálido desde arriba-derecha: modela la portada y el canto.
+            - Fill frío y suave: abre la sombra del lado izquierdo.
+            - Rim/top blanco desde atrás: recorta el borde superior y separa
+              el libro del fondo rojo. */}
+        <ambientLight intensity={0.4} />
+        <directionalLight position={[3, 4, 4]} intensity={0.72} color="#fff4e6" />
+        <directionalLight position={[-3, 0.5, 2]} intensity={0.24} color="#e6f0ff" />
+        <directionalLight position={[0, 4, -2.5]} intensity={0.42} color="#ffffff" />
 
         <Suspense fallback={null}>
-          <Environment preset="apartment" background={false} environmentIntensity={0.55} />
+          <Environment preset="apartment" background={false} environmentIntensity={0.62} />
           <Shelf
             revistas={revistas}
             hoveredId={hoveredId}
