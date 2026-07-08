@@ -315,11 +315,6 @@ function Revistas() {
               <p className="revistas-shelf-desc">{selected.descripcion}</p>
             )}
             {selected && (
-              <span className="revistas-shelf-precio">
-                ${selected.precio}
-              </span>
-            )}
-            {selected && (
               <button
                 type="button"
                 className="revista-add-btn revista-add-btn--3d"
@@ -327,8 +322,8 @@ function Revistas() {
                 disabled={hasInCart(selected.id)}
               >
                 {hasInCart(selected.id)
-                  ? '✓ En el carrito'
-                  : 'Agregar al carrito'}
+                  ? 'En el carrito'
+                  : `Agregar — $${selected.precio}`}
               </button>
             )}
             {selected && addError && (
